@@ -2,7 +2,7 @@
 
 // --- TEAMMATE IMPORTS (UPDATE THESE PATHS) ---
 // Change '../path/to/permissions' to the real location of your teammate's file
-const { checkViewPermission } = require('../path/to/permissions'); 
+const { checkViewPermission } = require('./permissions'); 
 const { generateFakeProfile } = require('../path/to/fakeProfile');
 // ---------------------------------------------
 
