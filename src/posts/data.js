@@ -5,9 +5,9 @@ const plugins = require('../plugins');
 const utils = require('../utils');
 
 const intFields = [
-    'uid', 'pid', 'tid', 'deleted', 'timestamp',
-    'upvotes', 'downvotes', 'deleterUid', 'edited',
-    'replies', 'bookmarks', 'announces', 'anonymous',
+	'uid', 'pid', 'tid', 'deleted', 'timestamp',
+	'upvotes', 'downvotes', 'deleterUid', 'edited',
+	'replies', 'bookmarks', 'announces', 'anonymous',
 ];
 
 module.exports = function (Posts) {
