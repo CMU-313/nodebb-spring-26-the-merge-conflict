@@ -1,11 +1,5 @@
 'use strict';
 
-// --- TEAMMATE IMPORTS (UPDATE THESE PATHS) ---
-// Change '../path/to/permissions' to the real location of your teammate's file
-const { checkViewPermission } = require('./permissions'); 
-const { generateFakeProfile } = require('./fakeProfile');
-// ---------------------------------------------
-
 const _ = require('lodash');
 
 const db = require('../database');
@@ -48,51 +42,36 @@ Posts.getPidsFromSet = async function (set, start, stop, reverse) {
     return await db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](set, start, stop);
 };
 
-// --- MODIFIED FUNCTION WITH ANONYMOUS FRAMEWORK ---
 Posts.getPostsByPids = async function (pids, uid) {
     if (!Array.isArray(pids) || !pids.length) {
         return [];
     }
 
-    // 1. Fetch raw data
     let posts = await Posts.getPostsData(pids);
     
-    // 2. Parse markdown and attach User data
     posts = await Promise.all(posts.map(Posts.parsePost));
     
-    // 3. Fire standard plugins (hooks)
     const data = await plugins.hooks.fire('filter:post.getPosts', { posts: posts, uid: uid });
     
     if (!data || !Array.isArray(data.posts)) {
         return [];
     }
+    
+    const isPrivileged = await user.isAdministrator(uid) || await user.isGlobalModerator(uid);
 
-    // 4. ANONYMOUS FRAMEWORK INTERCEPT
-    // We iterate over the posts right before returning them to the browser
     for (const post of data.posts) {
-        // Check if post exists and has the 'isAnon' flag from the database
-        if (post && post.isAnon) {
+   
+        if (post && post.anonymous) {
             
-            // Check if the viewer (uid) is allowed to see the real identity
-            // We await the result from your teammate's permission function
-            const canSee = await checkViewPermission(uid, post.pid);
-
-            if (!canSee) {
-                // If they can't see the real name, generate the fake profile
-                const fakeUser = await generateFakeProfile(post.uid);
-
-                // Overwrite the User Object for the frontend
+            if (!isPrivileged) {
                 if (post.user) {
-                    post.user.username = fakeUser.username || 'Anonymous Student';
-                    post.user.displayname = fakeUser.username || 'Anonymous Student';
-                    post.user.userslug = 'anonymous'; // Prevents linking to real profile
+                    post.user.username = 'Anonymous';
+                    post.user.userslug = ''; 
                     
-                    // Handle avatar/picture
-                    post.user.picture = fakeUser.picture || null;
-                    post.user.icon_text = '?';
-                    post.user.icon_bgColor = '#666';
+                    post.user.picture = ''; 
+                    post.user['icon:text'] = '?';
+                    post.user['icon:bgColor'] = '#666'; 
 
-                    // Scrub identifying details
                     post.user.fullname = '';
                     post.user.signature = '';
                     post.user.reputation = 0;
@@ -101,7 +80,6 @@ Posts.getPostsByPids = async function (pids, uid) {
             }
         }
     }
-    // -------------------------------------------------
 
     return data.posts.filter(Boolean);
 };
