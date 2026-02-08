@@ -182,6 +182,8 @@ PostDataObject:
           type: number
         announces:
           type: number
+        anonymous:
+          type: number
         bookmarks:
           type: number
         deleterUid:

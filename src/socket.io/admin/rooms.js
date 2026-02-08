@@ -88,7 +88,6 @@ SocketRooms.getOnlineUserCount = function (io) {
 };
 
 SocketRooms.getLocalStats = function () {
-	console.log('Jai Nukala - SocketRooms.getLocalStats called');
 	const Sockets = require('../index');
 	const io = Sockets.server;
 
