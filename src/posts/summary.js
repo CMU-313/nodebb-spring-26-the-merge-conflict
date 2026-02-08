@@ -10,6 +10,8 @@ const user = require('../user');
 const plugins = require('../plugins');
 const categories = require('../categories');
 const utils = require('../utils');
+const { checkViewPermission } = require('./permissions');
+const { generateFakeProfile } = require('./fakeProfile');
 
 module.exports = function (Posts) {
 	Posts.getPostSummaryByPids = async function (pids, uid, options) {
@@ -22,7 +24,7 @@ module.exports = function (Posts) {
 		options.escape = options.hasOwnProperty('escape') ? options.escape : false;
 		options.extraFields = options.hasOwnProperty('extraFields') ? options.extraFields : [];
 
-		const fields = ['pid', 'tid', 'toPid', 'url', 'content', 'sourceContent', 'uid', 'timestamp', 'deleted', 'upvotes', 'downvotes', 'replies', 'handle'].concat(options.extraFields);
+		const fields = ['pid', 'tid', 'toPid', 'url', 'content', 'sourceContent', 'uid', 'timestamp', 'deleted', 'upvotes', 'downvotes', 'replies', 'handle', 'anonymous'].concat(options.extraFields);
 
 		let posts = await Posts.getPostsFields(pids, fields);
 		posts = posts.filter(Boolean);
@@ -66,6 +68,35 @@ module.exports = function (Posts) {
 		});
 
 		posts = posts.filter(post => tidToTopic[post.tid]);
+
+		// ANONYMOUS LOGIC START
+		// 1. Check all permissions in parallel (fixes "await in loop" error)
+		const permissions = await Promise.all(posts.map(async (post) => {
+			if (post && post.anonymous) {
+				return await checkViewPermission(uid, post.pid);
+			}
+			return true; // Non-anon posts are visible
+		}));
+
+		// 2. Apply the mask synchronously
+		posts.forEach((post, index) => {
+			const canSee = permissions[index];
+
+			if (post && post.anonymous && !canSee) {
+				const fakeUser = generateFakeProfile(post.uid);
+
+				if (post.user) {
+					post.user.username = fakeUser.username;
+					post.user.userslug = 'anonymous';
+					post.user.picture = fakeUser.picture || null;
+					post.user['icon:text'] = '?';
+					post.user['icon:bgColor'] = fakeUser.color || '#888';
+					post.user.reputation = 0;
+					post.user.status = 'offline';
+				}
+			}
+		});
+		// ANONYMOUS LOGIC END
 
 		posts = await parsePosts(posts, options);
 		const result = await plugins.hooks.fire('filter:post.getPostSummaryByPids', { posts: posts, uid: uid });

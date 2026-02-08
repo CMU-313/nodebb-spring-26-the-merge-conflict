@@ -8,6 +8,7 @@ const user = require('../user');
 const privileges = require('../privileges');
 const plugins = require('../plugins');
 const generateFakeProfile = require('./fakeProfile.js');
+const { checkViewPermission } = require('./permissions');
 
 const Posts = module.exports;
 
@@ -61,8 +62,8 @@ Posts.getPostsByPids = async function (pids, uid) {
 	// ANONYMOUS LOGIC START
 	// 1. Check all permissions in parallel (fixes "await in loop" error)
 	const permissions = await Promise.all(data.posts.map(async (post) => {
-		if (post && post.isAnon) {
-			return await checkViewPermission(uid, post.pid, post.uid);
+		if (post && post.anonymous) {
+			return await checkViewPermission(uid, post.pid);
 		}
 		return true; // Non-anon posts are visible
 	}));
@@ -71,7 +72,7 @@ Posts.getPostsByPids = async function (pids, uid) {
 	data.posts.forEach((post, index) => {
 		const canSee = permissions[index];
 
-		if (post && post.isAnon && !canSee) {
+		if (post && post.anonymous && !canSee) {
 			const fakeUser = generateFakeProfile(post.uid);
 
 			if (post.user) {
@@ -142,10 +143,5 @@ Posts.modifyPostByPrivilege = function (post, privileges) {
 		}
 	}
 };
-
-async function checkViewPermission(uid, pid, authorUid) {
-	if (parseInt(uid, 10) === parseInt(authorUid, 10)) return true;
-	return await user.isAdministrator(uid) || await user.isGlobalModerator(uid);
-}
 
 require('../promisify')(Posts);
