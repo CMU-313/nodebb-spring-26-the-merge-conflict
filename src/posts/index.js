@@ -7,6 +7,7 @@ const utils = require('../utils');
 const user = require('../user');
 const privileges = require('../privileges');
 const plugins = require('../plugins');
+const generateFakeProfile = require('./fakeProfile.js');
 
 const Posts = module.exports;
 
@@ -48,38 +49,48 @@ Posts.getPostsByPids = async function (pids, uid) {
 	}
 
 	let posts = await Posts.getPostsData(pids);
-    
+	
 	posts = await Promise.all(posts.map(Posts.parsePost));
-    
+	
 	const data = await plugins.hooks.fire('filter:post.getPosts', { posts: posts, uid: uid });
-    
+	
 	if (!data || !Array.isArray(data.posts)) {
 		return [];
 	}
-    
-	const isPrivileged = await user.isAdministrator(uid) || await user.isGlobalModerator(uid);
+	
+	// ANONYMOUS LOGIC START
+	// 1. Check all permissions in parallel (fixes "await in loop" error)
+	const permissions = await Promise.all(data.posts.map(async (post) => {
+		if (post && post.isAnon) {
+			return await checkViewPermission(uid, post.pid, post.uid);
+		}
+		return true; // Non-anon posts are visible
+	}));
 
-	for (const post of data.posts) {
-   
-		if (post && post.anonymous) {
-            
-			if (!isPrivileged) {
-				if (post.user) {
-					post.user.username = 'Anonymous';
-					post.user.userslug = ''; 
-                    
-					post.user.picture = ''; 
-					post.user['icon:text'] = '?';
-					post.user['icon:bgColor'] = '#666'; 
+	// 2. Apply the mask synchronously
+	data.posts.forEach((post, index) => {
+		const canSee = permissions[index];
 
-					post.user.fullname = '';
-					post.user.signature = '';
-					post.user.reputation = 0;
-					post.user.status = 'offline';
-				}
+		if (post && post.isAnon && !canSee) {
+			const fakeUser = generateFakeProfile(post.uid);
+
+			if (post.user) {
+				post.user.username = fakeUser.username;
+				post.user.displayname = fakeUser.username;
+				post.user.userslug = 'anonymous'; 
+
+				post.user.picture = fakeUser.picture || null;
+				post.user['icon:text'] = '?';
+				post.user['icon:bgColor'] = fakeUser.color || '#888'; 
+
+				post.user.fullname = '';
+				post.user.signature = '';
+				post.user.reputation = 0;
+				post.user.status = 'offline';
 			}
 		}
-	}
+	});
+	// ANONYMOUS LOGIC END
 
 	return data.posts.filter(Boolean);
 };
@@ -131,5 +142,10 @@ Posts.modifyPostByPrivilege = function (post, privileges) {
 		}
 	}
 };
+
+async function checkViewPermission(uid, pid, authorUid) {
+	if (parseInt(uid, 10) === parseInt(authorUid, 10)) return true;
+	return await user.isAdministrator(uid) || await user.isGlobalModerator(uid);
+}
 
 require('../promisify')(Posts);
