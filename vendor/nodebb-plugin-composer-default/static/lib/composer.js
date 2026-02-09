@@ -764,6 +764,7 @@ define('composer', [
 				tags: tags.getTags(post_uuid),
 				thumbs: postData.thumbs || [],
 				timestamp: scheduler.getTimestamp(),
+				anonymous: postContainer.find('input[name="anonymous"]').val(),
 			};
 		} else if (action === 'posts.reply') {
 			route = `/topics/${postData.tid}`;
@@ -773,6 +774,7 @@ define('composer', [
 				handle: handleEl ? handleEl.val() : undefined,
 				content: bodyEl.val(),
 				toPid: postData.toPid,
+				anonymous: postContainer.find('input[name="anonymous"]').val(),
 			};
 		} else if (action === 'posts.edit') {
 			method = 'put';
