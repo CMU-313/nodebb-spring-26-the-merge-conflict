@@ -7,7 +7,7 @@ const utils = require('../utils');
 const user = require('../user');
 const privileges = require('../privileges');
 const plugins = require('../plugins');
-const generateFakeProfile = require('./fakeProfile.js');
+const { generateFakeProfile } = require('./fakeProfile');
 const { checkViewPermission } = require('./permissions');
 
 const Posts = module.exports;

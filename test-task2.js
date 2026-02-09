@@ -26,7 +26,7 @@ async function checkViewPermission(uid, pid) {
 	if (isAdmin) return true;
 
 	const postData = await mockPosts.getPostFields(pid, ['tid']);
-	const cid = await mockPosts.getTopicField(postData.tid, 'cid');
+	const cid = await mockPosts.getTopicFields(postData.tid, 'cid');
 	const isMod = await mockPrivileges.categories.isModerator(cid, uid);
 	if (isMod) return true;
 
