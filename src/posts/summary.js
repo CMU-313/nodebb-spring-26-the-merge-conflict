@@ -79,18 +79,27 @@ module.exports = function (Posts) {
 		}));
 
 		// 2. Apply the mask synchronously
+		// Precompute fake profiles for masked posts in parallel
+		const fakeProfiles = await Promise.all(posts.map((post, index) => {
+			if (post && post.anonymous && !permissions[index]) {
+				return generateFakeProfile(post.uid);
+			}
+			return null;
+		}));
+
 		posts.forEach((post, index) => {
 			const canSee = permissions[index];
+			const fakeUser = fakeProfiles[index];
 
 			if (post && post.anonymous && !canSee) {
-				const fakeUser = generateFakeProfile(post.uid);
-
 				if (post.user) {
-					post.user.username = fakeUser.username;
-					post.user.userslug = 'anonymous';
-					post.user.picture = fakeUser.picture || null;
+					post.user.uid = 0; // avoid linking to real user
+					post.user.username = (fakeUser && fakeUser.username) || 'Anonymous';
+					post.user.displayname = (fakeUser && fakeUser.username) || 'Anonymous';
+					post.user.userslug = '';
+					post.user.picture = (fakeUser && fakeUser.picture) || null;
 					post.user['icon:text'] = '?';
-					post.user['icon:bgColor'] = fakeUser.color || '#888';
+					post.user['icon:bgColor'] = (fakeUser && fakeUser.color) || '#888';
 					post.user.reputation = 0;
 					post.user.status = 'offline';
 				}
