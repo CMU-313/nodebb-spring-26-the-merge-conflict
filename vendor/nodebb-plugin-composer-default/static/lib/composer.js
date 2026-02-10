@@ -13,6 +13,7 @@ define('composer', [
 	'composer/autocomplete',
 	'composer/scheduler',
 	'composer/post-queue',
+	'./composer/anonymous-toggle',
 	'scrollStop',
 	'topicThumbs',
 	'api',
@@ -23,7 +24,7 @@ define('composer', [
 	'search',
 	'screenfull',
 ], function (taskbar, translator, uploads, formatting, drafts, tags,
-	categoryList, preview, resize, autocomplete, scheduler, postQueue, scrollStop,
+	categoryList, preview, resize, autocomplete, scheduler, postQueue, bindAnonymousToggle, scrollStop,
 	topicThumbs, api, bootbox, alerts, hooks, messagesModule, search, screenfull) {
 	var composer = {
 		active: undefined,
@@ -419,36 +420,7 @@ define('composer', [
 			$('[data-format="zen"]').parent().addClass('hidden');
 		}
 
-		// Anonymous toggle handler: toggles hidden input `name="anonymous"`
-		postContainer.on('click', '[component="composer/anonymous-toggle"]', function (e) {
-			e.preventDefault();
-
-			const $btn = $(this);
-			const input = postContainer.find('input[name="anonymous"]');
-
-			if (!input.length) {
-				console.warn('Anonymous input not found!');
-				return;
-			}
-
-			// Toggle value
-			const newVal = input.val() === '1' ? '0' : '1';
-			input.val(newVal);
-
-			// Update icon + label
-			const $icon = $btn.find('i');
-			const $text = $btn.find('span');
-
-			if (newVal === '1') {
-				$icon.attr('class', 'fa fa-user-secret');
-				$text.text('Anonymous');
-			} else {
-				$icon.attr('class', 'fa fa-globe');
-				$text.text('Public');
-			}
-
-			console.log('Anonymous mode now:', newVal);
-		});
+		bindAnonymousToggle(postContainer);
 
 		hooks.fire('action:composer.enhanced', { postContainer, postData, draft });
 	};
