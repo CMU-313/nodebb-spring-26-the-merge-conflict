@@ -91,6 +91,9 @@ module.exports = function (Posts) {
 			const canSee = permissions[index];
 			const fakeUser = fakeProfiles[index];
 
+			// Show private indicator: if post is anonymous AND viewer is authorized (admin/mod)
+			post.showPrivateIndicator = post && post.anonymous && canSee;
+
 			if (post && post.anonymous && !canSee) {
 				if (post.user) {
 					post.user.uid = 0; // avoid linking to real user

@@ -97,6 +97,8 @@ module.exports = function (Topics) {
 					// Viewer can see the real author; add flag so UI can render an
 					// anonymous marker while still linking the profile.
 					post.anonymousVisible = true;
+					// Show private indicator for admin/mod: this post is private/anonymous
+					post.showPrivateIndicator = true;
 				}
 			}
 
