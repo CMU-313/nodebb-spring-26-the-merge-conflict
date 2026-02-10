@@ -2,7 +2,8 @@
 
 	{{{ each topics }}}
 	<li component="category/topic" class="category-item hover-parent border-bottom py-3 py-lg-4 d-flex flex-column flex-lg-row align-items-start {function.generateTopicClass}" <!-- IMPORT partials/data/category.tpl -->>
-		<!-- DEBUG: anonymous value is: {./anonymous} -->
+		<!-- DEBUG: authorized value is: {./authorized} -->
+		<!-- DEBUG: teaser authorized value is: {./teaser.authorized} -->
 		<link itemprop="url" content="{config.relative_path}/topic/{./slug}" />
 		<meta itemprop="name" content="{function.stripTags, ./title}" />
 		<meta itemprop="itemListOrder" content="descending" />
@@ -11,7 +12,7 @@
 
 		<div class="d-flex p-0 col-12 col-lg-7 gap-2 gap-lg-3 pe-1 align-items-start {{{ if config.theme.mobileTopicTeasers }}}mb-2 mb-lg-0{{{ end }}}">
 			<div class="flex-shrink-0 position-relative">
-				{{{ if ./anonymous }}}
+				{{{ if (./anonymous && !./authorized) }}}
 					<img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='20' cy='20' r='18' fill='%23888' /></svg>" width="40" height="40" alt="Anonymous" class="rounded-circle" />
 				{{{ else }}}
 					<a class="d-inline-block text-decoration-none avatar-tooltip" title="{./user.displayname}" href="{{{ if ./user.userslug }}}{config.relative_path}/user/{./user.userslug}{{{ else }}}#{{{ end }}}">
@@ -119,7 +120,7 @@
 					{{{ else }}}
 					{{{ if ./teaser.pid }}}
 					<div class="ps-2">
-					{{{ if ./teaser.anonymous }}}
+					{{{ if (./teaser.anonymous && !./teaser.authorized) }}}
 						<img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18'><circle cx='9' cy='9' r='8' fill='%23888' /></svg>" width="18" height="18" alt="Anonymous" class="rounded-circle" />
 					{{{ else }}}
 						<a href="{{{ if ./teaser.user.userslug }}}{config.relative_path}/user/{./teaser.user.userslug}{{{ else }}}#{{{ end }}}" class="text-decoration-none avatar-tooltip" title="{./teaser.user.displayname}">{buildAvatar(./teaser.user, "18px", true)}</a>

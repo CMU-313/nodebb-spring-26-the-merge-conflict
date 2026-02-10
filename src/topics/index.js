@@ -90,6 +90,12 @@ Topics.getTopicsByTids = async function (tids, options) {
 			return _.zipObject(postData.map(p => p.pid), postData.map(p => p.anonymous));
 		}
 
+		async function loadMainPostAuthorized() {
+			const mainPids = topics.map(t => t && t.mainPid).filter(Boolean);
+			const postData = await posts.getPostsFields(mainPids, ['pid', 'authorized']);
+			return _.zipObject(postData.map(p => p.pid), postData.map(p => p.authorized));
+		}
+
 		async function loadShowfullnameSettings() {
 			if (meta.config.hideFullname) {
 				return uids.map(() => ({ showfullname: false }));
@@ -101,7 +107,8 @@ Topics.getTopicsByTids = async function (tids, options) {
 			return data;
 		}
 
-		const [teasers, users, userSettings, categoriesData, guestHandles, thumbs, mainPostAnonymous] = await Promise.all([
+		const [teasers, users, userSettings, categoriesData, guestHandles, thumbs, 
+			mainPostAnonymous, mainPostAuthorized] = await Promise.all([
 			Topics.getTeasers(topics, options),
 			user.getUsersFields(uids, ['uid', 'username', 'fullname', 'userslug', 'reputation', 'postcount', 'picture', 'signature', 'banned', 'status']),
 			loadShowfullnameSettings(),
@@ -109,6 +116,7 @@ Topics.getTopicsByTids = async function (tids, options) {
 			loadGuestHandles(),
 			Topics.thumbs.load(topics),
 			loadMainPostAnonymous(),
+			loadMainPostAuthorized(),
 		]);
 
 		users.forEach((userObj, idx) => {
@@ -126,6 +134,7 @@ Topics.getTopicsByTids = async function (tids, options) {
 			tidToGuestHandle: _.zipObject(guestTopics.map(t => t.tid), guestHandles),
 			thumbs,
 			mainPostAnonymous,
+			mainPostAuthorized,
 		};
 	}
 
@@ -144,6 +153,7 @@ Topics.getTopicsByTids = async function (tids, options) {
 			topic.category = result.categoriesMap[topic.cid];
 			topic.user = topic.uid ? result.usersMap[topic.uid] : { ...result.usersMap[topic.uid] };
 			topic.anonymous = result.mainPostAnonymous[topic.mainPid];
+			topic.authorized = result.mainPostAuthorized[topic.mainPid];
 			if (result.tidToGuestHandle[topic.tid]) {
 				topic.user.username = validator.escape(result.tidToGuestHandle[topic.tid]);
 				topic.user.displayname = topic.user.username;
