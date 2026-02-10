@@ -765,6 +765,7 @@ define('composer', [
 				thumbs: postData.thumbs || [],
 				timestamp: scheduler.getTimestamp(),
 				anonymous: postContainer.find('input[name="anonymous"]').val(),
+				authorized: app.user.isAdmin || (postData && String(postData.uid) === String(app.user.uid)),
 			};
 		} else if (action === 'posts.reply') {
 			route = `/topics/${postData.tid}`;
@@ -775,6 +776,7 @@ define('composer', [
 				content: bodyEl.val(),
 				toPid: postData.toPid,
 				anonymous: postContainer.find('input[name="anonymous"]').val(),
+				authorized: app.user.isAdmin || (postData && String(postData.uid) === String(app.user.uid)),
 			};
 		} else if (action === 'posts.edit') {
 			method = 'put';

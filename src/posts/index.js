@@ -81,6 +81,7 @@ Posts.getPostsByPids = async function (pids, uid) {
 	// 3. Apply the mask synchronously using precomputed fake profiles
 	data.posts.forEach((post, index) => {
 		const canSee = permissions[index];
+		post.authorized = canSee;
 		const fakeUser = fakeProfiles[index];
 
 		if (post && post.anonymous && !canSee) {

@@ -8,9 +8,10 @@
 {{{ if (./parent && !hideParent) }}}
 <!-- IMPORT partials/topic/post-parent.tpl -->
 {{{ end }}}
+<!-- DEBUG: authorized value is: {posts.authorized} -->
 <div class="d-flex align-items-start gap-3 post-container-parent">
 	<div class="bg-body d-none d-sm-block rounded-circle" style="outline: 2px solid var(--bs-body-bg);">
-		{{{ if posts.anonymous }}}
+		{{{ if (posts.anonymous && !posts.authorized) }}}
 			<img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><circle cx='24' cy='24' r='22' fill='%23888' /></svg>" width="48" height="48" alt="Anonymous" class="rounded-circle" />
 			{{{ if ./user.isLocal }}}
 			<span component="user/status" class="position-absolute top-100 start-100 border border-white border-2 rounded-circle status {posts.user.status}"><span class="visually-hidden">[[global:{posts.user.status}]]</span></span>
@@ -42,7 +43,7 @@
 
 				<div class="d-flex flex-nowrap gap-1 align-items-center text-truncate">
 					<div class="bg-body d-sm-none">
-						{{{ if posts.anonymous }}}
+						{{{ if (posts.anonymous && !posts.authorized) }}}
 							<img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='10' r='9' fill='%23888' /></svg>" width="20" height="20" alt="Anonymous" class="rounded-circle" />
 							{{{ if ./user.isLocal }}}
 							<span component="user/status" class="position-absolute top-100 start-100 border border-white border-2 rounded-circle status {posts.user.status}"><span class="visually-hidden">[[global:{posts.user.status}]]</span></span>
@@ -67,7 +68,7 @@
 						{{{ end }}}
 					</div>
 
-					{{{ if posts.anonymous }}}
+					{{{ if (posts.anonymous && !posts.authorized) }}}
 					<span class="fw-bold text-nowrap text-truncate">Anonymous User</span>
 					{{{ else }}}
 					<a class="fw-bold text-nowrap text-truncate" href="{{{ if ./user.userslug }}}{config.relative_path}/user/{./user.userslug}{{{ else }}}#{{{ end }}}" data-username="{posts.user.username}" data-uid="{posts.user.uid}">{posts.user.displayname}</a>
