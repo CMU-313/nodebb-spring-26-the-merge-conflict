@@ -75,22 +75,31 @@ module.exports = function (Topics) {
 			post.user = users[post.uid];
 			post.timestampISO = utils.toISOString(post.timestamp);
 			post.authorized = permissions[index];
-			
-			// Mask user information for anonymous posts
+
+			// Handle anonymous posts:
+			// - If the viewer is NOT authorized to see the author, mask profile info.
+			// - If the viewer IS authorized, show the real author but mark the post
+			//   so the UI can indicate it was posted anonymously.
 			if (post.anonymous) {
-				if (post.user) {
-					post.user.uid = 0;
-					post.user.username = 'Anonymous';
-					post.user.displayname = 'Anonymous';
-					post.user.userslug = '';
-					post.user.picture = null;
-					post.user['icon:text'] = '?';
-					post.user['icon:bgColor'] = '#888';
-					post.user.reputation = 0;
-					post.user.status = 'offline';
+				if (!post.authorized) {
+					if (post.user) {
+						post.user.uid = 0;
+						post.user.username = 'Anonymous';
+						post.user.displayname = 'Anonymous';
+						post.user.userslug = '';
+						post.user.picture = null;
+						post.user['icon:text'] = '?';
+						post.user['icon:bgColor'] = '#888';
+						post.user.reputation = 0;
+						post.user.status = 'offline';
+					}
+				} else {
+					// Viewer can see the real author; add flag so UI can render an
+					// anonymous marker while still linking the profile.
+					post.anonymousVisible = true;
 				}
 			}
-			
+
 			tidToPost[post.tid] = post;
 		});
 		await Promise.all(postData.map(p => posts.parsePost(p, 'plaintext')));
