@@ -75,6 +75,22 @@ module.exports = function (Topics) {
 			post.user = users[post.uid];
 			post.timestampISO = utils.toISOString(post.timestamp);
 			post.authorized = permissions[index];
+			
+			// Mask user information for anonymous posts
+			if (post.anonymous) {
+				if (post.user) {
+					post.user.uid = 0;
+					post.user.username = 'Anonymous';
+					post.user.displayname = 'Anonymous';
+					post.user.userslug = '';
+					post.user.picture = null;
+					post.user['icon:text'] = '?';
+					post.user['icon:bgColor'] = '#888';
+					post.user.reputation = 0;
+					post.user.status = 'offline';
+				}
+			}
+			
 			tidToPost[post.tid] = post;
 		});
 		await Promise.all(postData.map(p => posts.parsePost(p, 'plaintext')));
