@@ -13,6 +13,7 @@ const categories = require('../categories');
 const activitypub = require('../activitypub');
 const privileges = require('../privileges');
 const social = require('../social');
+const { checkViewPermission } = require('../posts/permissions');
 
 const Topics = module.exports;
 
@@ -92,8 +93,14 @@ Topics.getTopicsByTids = async function (tids, options) {
 
 		async function loadMainPostAuthorized() {
 			const mainPids = topics.map(t => t && t.mainPid).filter(Boolean);
-			const postData = await posts.getPostsFields(mainPids, ['pid', 'authorized']);
-			return _.zipObject(postData.map(p => p.pid), postData.map(p => p.authorized));
+			const postData = await posts.getPostsFields(mainPids, ['pid', 'anonymous']);
+			const permissions = await Promise.all(postData.map(async (post) => {
+				if (post && post.anonymous) {
+					return await checkViewPermission(uid, post.pid);
+				}
+				return true;
+			}));
+			return _.zipObject(postData.map(p => p.pid), permissions);
 		}
 
 		async function loadShowfullnameSettings() {
