@@ -7,6 +7,8 @@ const utils = require('../utils');
 const user = require('../user');
 const privileges = require('../privileges');
 const plugins = require('../plugins');
+const { generateFakeProfile } = require('./fakeProfile');
+const { checkViewPermission } = require('./permissions');
 
 const Posts = module.exports;
 
@@ -43,16 +45,65 @@ Posts.getPidsFromSet = async function (set, start, stop, reverse) {
 };
 
 Posts.getPostsByPids = async function (pids, uid) {
+	//console.log('the function is called');
 	if (!Array.isArray(pids) || !pids.length) {
 		return [];
 	}
 
 	let posts = await Posts.getPostsData(pids);
+	
 	posts = await Promise.all(posts.map(Posts.parsePost));
+	
 	const data = await plugins.hooks.fire('filter:post.getPosts', { posts: posts, uid: uid });
+	
 	if (!data || !Array.isArray(data.posts)) {
 		return [];
 	}
+	
+	// ANONYMOUS LOGIC START
+	// 1. Check all permissions in parallel (fixes "await in loop" error)
+	const permissions = await Promise.all(data.posts.map(async (post) => {
+		if (post && post.anonymous) {
+			//console.log('there are anonymous posts');
+			return await checkViewPermission(uid, post.pid);
+		}
+		return true; // Non-anon posts are visible
+	}));
+
+	// 2. Create fake profiles for masked posts in parallel
+	const fakeProfiles = await Promise.all(data.posts.map((post, index) => {
+		if (post && post.anonymous && !permissions[index]) {
+			return generateFakeProfile(post.uid);
+		}
+		return null;
+	}));
+
+	// 3. Apply the mask synchronously using precomputed fake profiles
+	data.posts.forEach((post, index) => {
+		const canSee = permissions[index];
+		post.authorized = canSee;
+		const fakeUser = fakeProfiles[index];
+
+		if (post && post.anonymous && !canSee) {
+			if (post.user) {
+				post.user.uid = 0; // prevent linking to the real user
+				post.user.username = (fakeUser && fakeUser.username) || 'Anonymous';
+				post.user.displayname = (fakeUser && fakeUser.username) || 'Anonymous';
+				post.user.userslug = '';
+
+				post.user.picture = (fakeUser && fakeUser.picture) || '';
+				post.user['icon:text'] = '?';
+				post.user['icon:bgColor'] = (fakeUser && fakeUser.color) || '#888';
+
+				post.user.fullname = '';
+				post.user.signature = '';
+				post.user.reputation = 0;
+				post.user.status = 'offline';
+			}
+		}
+	});
+	// ANONYMOUS LOGIC END
+
 	return data.posts.filter(Boolean);
 };
 

@@ -9,6 +9,8 @@ const user = require('../user');
 const posts = require('../posts');
 const plugins = require('../plugins');
 const utils = require('../utils');
+// const { generateFakeProfile } = require('../posts/fakeProfile');
+const { checkViewPermission } = require('../posts/permissions');
 
 module.exports = function (Topics) {
 	Topics.getTeasers = async function (topics, options) {
@@ -43,12 +45,18 @@ module.exports = function (Topics) {
 		});
 
 		const [allPostData, callerSettings] = await Promise.all([
-			posts.getPostsFields(teaserPids, ['pid', 'uid', 'timestamp', 'tid', 'content', 'sourceContent']),
+			posts.getPostsFields(teaserPids, ['pid', 'uid', 'timestamp', 'tid', 'content', 'sourceContent', 'anonymous', 'authorized']),
 			user.getSettings(uid),
 		]);
 		let postData = allPostData.filter(post => post && post.pid);
 		postData = await handleBlocks(uid, postData);
 		postData = postData.filter(Boolean);
+		const permissions = await Promise.all(postData.map(async (post) => {
+			if (post && post.anonymous) {
+				return await checkViewPermission(uid, post.pid);
+			}
+			return true;
+		}));
 		const uids = _.uniq(postData.map(post => post.uid));
 		const sortNewToOld = callerSettings.topicPostSort === 'newest_to_oldest';
 		const usersData = await user.getUsersFields(uids, ['uid', 'username', 'userslug', 'picture']);
@@ -57,7 +65,7 @@ module.exports = function (Topics) {
 		usersData.forEach((user) => {
 			users[user.uid] = user;
 		});
-		postData.forEach((post) => {
+		postData.forEach((post, index) => {
 			// If the post author isn't represented in the retrieved users' data,
 			// then it means they were deleted, assume guest.
 			if (!users.hasOwnProperty(post.uid)) {
@@ -66,6 +74,7 @@ module.exports = function (Topics) {
 
 			post.user = users[post.uid];
 			post.timestampISO = utils.toISOString(post.timestamp);
+			post.authorized = permissions[index];
 			tidToPost[post.tid] = post;
 		});
 		await Promise.all(postData.map(p => posts.parsePost(p, 'plaintext')));

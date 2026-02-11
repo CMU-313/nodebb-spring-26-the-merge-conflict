@@ -13,6 +13,7 @@ const categories = require('../categories');
 const activitypub = require('../activitypub');
 const privileges = require('../privileges');
 const social = require('../social');
+const { checkViewPermission } = require('../posts/permissions');
 
 const Topics = module.exports;
 
@@ -84,6 +85,24 @@ Topics.getTopicsByTids = async function (tids, options) {
 			return postData.map(p => p.handle);
 		}
 
+		async function loadMainPostAnonymous() {
+			const mainPids = topics.map(t => t && t.mainPid).filter(Boolean);
+			const postData = await posts.getPostsFields(mainPids, ['pid', 'anonymous']);
+			return _.zipObject(postData.map(p => p.pid), postData.map(p => p.anonymous));
+		}
+
+		async function loadMainPostAuthorized() {
+			const mainPids = topics.map(t => t && t.mainPid).filter(Boolean);
+			const postData = await posts.getPostsFields(mainPids, ['pid', 'anonymous']);
+			const permissions = await Promise.all(postData.map(async (post) => {
+				if (post && post.anonymous) {
+					return await checkViewPermission(uid, post.pid);
+				}
+				return true;
+			}));
+			return _.zipObject(postData.map(p => p.pid), permissions);
+		}
+
 		async function loadShowfullnameSettings() {
 			if (meta.config.hideFullname) {
 				return uids.map(() => ({ showfullname: false }));
@@ -95,13 +114,16 @@ Topics.getTopicsByTids = async function (tids, options) {
 			return data;
 		}
 
-		const [teasers, users, userSettings, categoriesData, guestHandles, thumbs] = await Promise.all([
+		const [teasers, users, userSettings, categoriesData, guestHandles, thumbs, 
+			mainPostAnonymous, mainPostAuthorized] = await Promise.all([
 			Topics.getTeasers(topics, options),
 			user.getUsersFields(uids, ['uid', 'username', 'fullname', 'userslug', 'reputation', 'postcount', 'picture', 'signature', 'banned', 'status']),
 			loadShowfullnameSettings(),
 			categories.getCategoriesFields(cids, ['cid', 'name', 'slug', 'icon', 'backgroundImage', 'imageClass', 'bgColor', 'color', 'disabled']),
 			loadGuestHandles(),
 			Topics.thumbs.load(topics),
+			loadMainPostAnonymous(),
+			loadMainPostAuthorized(),
 		]);
 
 		users.forEach((userObj, idx) => {
@@ -118,6 +140,8 @@ Topics.getTopicsByTids = async function (tids, options) {
 			categoriesMap: _.zipObject(cids, categoriesData),
 			tidToGuestHandle: _.zipObject(guestTopics.map(t => t.tid), guestHandles),
 			thumbs,
+			mainPostAnonymous,
+			mainPostAuthorized,
 		};
 	}
 
@@ -135,6 +159,8 @@ Topics.getTopicsByTids = async function (tids, options) {
 			topic.thumbs = result.thumbs[i];
 			topic.category = result.categoriesMap[topic.cid];
 			topic.user = topic.uid ? result.usersMap[topic.uid] : { ...result.usersMap[topic.uid] };
+			topic.anonymous = result.mainPostAnonymous[topic.mainPid];
+			topic.authorized = result.mainPostAuthorized[topic.mainPid];
 			if (result.tidToGuestHandle[topic.tid]) {
 				topic.user.username = validator.escape(result.tidToGuestHandle[topic.tid]);
 				topic.user.displayname = topic.user.username;
