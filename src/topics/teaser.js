@@ -81,19 +81,7 @@ module.exports = function (Topics) {
 			// - If the viewer IS authorized, show the real author but mark the post
 			//   so the UI can indicate it was posted anonymously.
 			if (post.anonymous) {
-				if (!post.authorized) {
-					if (post.user) {
-						post.user.uid = 0;
-						post.user.username = 'Anonymous';
-						post.user.displayname = 'Anonymous';
-						post.user.userslug = '';
-						post.user.picture = null;
-						post.user['icon:text'] = '?';
-						post.user['icon:bgColor'] = '#888';
-						post.user.reputation = 0;
-						post.user.status = 'offline';
-					}
-				} else {
+				if (post.authorized) {
 					// Viewer can see the real author; add flag so UI can render an
 					// anonymous marker while still linking the profile.
 					post.anonymousVisible = true;
