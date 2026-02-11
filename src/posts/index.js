@@ -45,7 +45,7 @@ Posts.getPidsFromSet = async function (set, start, stop, reverse) {
 };
 
 Posts.getPostsByPids = async function (pids, uid) {
-	console.log('the function is called');
+	//console.log('the function is called');
 	if (!Array.isArray(pids) || !pids.length) {
 		return [];
 	}
@@ -64,7 +64,7 @@ Posts.getPostsByPids = async function (pids, uid) {
 	// 1. Check all permissions in parallel (fixes "await in loop" error)
 	const permissions = await Promise.all(data.posts.map(async (post) => {
 		if (post && post.anonymous) {
-			console.log('there are anonymous posts');
+			//console.log('there are anonymous posts');
 			return await checkViewPermission(uid, post.pid);
 		}
 		return true; // Non-anon posts are visible
