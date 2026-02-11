@@ -3,7 +3,11 @@
 	{{{ if @first }}}
 	<div component="category/posts" class="ps-2 text-xs d-flex flex-column h-100 gap-1">
 		<div class="text-nowrap text-truncate">
-			<a class="text-decoration-none avatar-tooltip" title="{./user.displayname}" href="{config.relative_path}/user/{./user.userslug}">{buildAvatar(posts.user, "18px", true)}</a>
+			{{{ if (posts.anonymous && !posts.authorized) }}}
+				<img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18'><circle cx='9' cy='9' r='8' fill='%23888' /></svg>" width="18" height="18" alt="Anonymous" class="rounded-circle" />
+			{{{ else }}}
+				<a class="text-decoration-none avatar-tooltip" title="{./user.displayname}" href="{config.relative_path}/user/{./user.userslug}">{buildAvatar(posts.user, "18px", true)}</a>
+			{{{ end }}}
 			<a class="permalink text-muted timeago text-xs" href="{config.relative_path}/topic/{./topic.slug}{{{ if ./index }}}/{./index}{{{ end }}}" title="{./timestampISO}" aria-label="[[global:lastpost]]"></a>
 		</div>
 		<div class="post-content text-xs text-break line-clamp-sm-2 lh-sm position-relative flex-fill">
