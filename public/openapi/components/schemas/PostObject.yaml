@@ -157,6 +157,8 @@ PostObject:
       type: number
     anonymous:
       type: number
+    showPrivateIndicator:
+      type: number
 PostDataObject:
   description: The output as returned from `Posts.getPostsData`
   allOf:
@@ -188,6 +190,8 @@ PostDataObject:
           type: number
         authorized:
           type: boolean
+        showPrivateIndicator:
+          type: number
         bookmarks:
           type: number
         deleterUid:

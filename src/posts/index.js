@@ -84,6 +84,9 @@ Posts.getPostsByPids = async function (pids, uid) {
 		post.authorized = canSee;
 		const fakeUser = fakeProfiles[index];
 
+		// Show private indicator: if post is anonymous AND viewer is authorized (admin/mod)
+		post.showPrivateIndicator = post && post.anonymous && canSee;
+
 		if (post && post.anonymous && !canSee) {
 			if (post.user) {
 				post.user.uid = 0; // prevent linking to the real user

@@ -81,6 +81,12 @@
 				{{{ end }}}
 				{{{ end }}}
 
+				{{{ if posts.showPrivateIndicator }}}
+				<span class="badge bg-warning text-dark rounded-1" title="[[posts:private-post-tooltip]]">
+					<i class="fa fa-lock"></i> [[posts:private]]
+				</span>
+				{{{ end }}}
+
 				{{{ if posts.user.banned }}}
 				<span class="badge bg-danger rounded-1">[[user:banned]]</span>
 				{{{ end }}}

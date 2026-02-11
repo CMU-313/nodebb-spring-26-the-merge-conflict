@@ -126,6 +126,11 @@
 						<a href="{{{ if ./teaser.user.userslug }}}{config.relative_path}/user/{./teaser.user.userslug}{{{ else }}}#{{{ end }}}" class="text-decoration-none avatar-tooltip" title="{./teaser.user.displayname}">{buildAvatar(./teaser.user, "18px", true)}</a>
 					{{{ end }}}
 						<a class="permalink text-muted timeago text-xs" href="{config.relative_path}/topic/{./slug}/{./teaser.index}" title="{./teaser.timestampISO}" aria-label="[[global:lastpost]]"></a>
+						{{{ if ./teaser.showPrivateIndicator }}}
+						<span class="badge bg-warning text-dark rounded-1 text-xs ms-1" title="[[posts:private-post-tooltip]]">
+							<i class="fa fa-lock"></i> [[posts:private]]
+						</span>
+						{{{ end }}}
 					</div>
 					<div class="post-content text-xs ps-2 line-clamp-sm-2 lh-sm text-break position-relative flex-fill">
 						<a class="stretched-link" tabindex="-1" href="{config.relative_path}/topic/{./slug}/{./teaser.index}" aria-label="[[global:lastpost]]"></a>

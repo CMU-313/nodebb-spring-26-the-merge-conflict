@@ -9,6 +9,11 @@
 				<a class="text-decoration-none avatar-tooltip" title="{./user.displayname}" href="{config.relative_path}/user/{./user.userslug}">{buildAvatar(posts.user, "18px", true)}</a>
 			{{{ end }}}
 			<a class="permalink text-muted timeago text-xs" href="{config.relative_path}/topic/{./topic.slug}{{{ if ./index }}}/{./index}{{{ end }}}" title="{./timestampISO}" aria-label="[[global:lastpost]]"></a>
+			{{{ if posts.showPrivateIndicator }}}
+				<span class="badge bg-warning text-dark rounded-1" title="[[posts:private-post-tooltip]]">
+					<i class="fa fa-lock"></i> [[posts:private]]
+				</span>
+			{{{ end }}}
 		</div>
 		<div class="post-content text-xs text-break line-clamp-sm-2 lh-sm position-relative flex-fill">
 			<a class="stretched-link" tabindex="-1" href="{config.relative_path}/topic/{./topic.slug}{{{ if ./index }}}/{./index}{{{ end }}}" aria-label="[[global:lastpost]]"></a>

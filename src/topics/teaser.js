@@ -75,6 +75,21 @@ module.exports = function (Topics) {
 			post.user = users[post.uid];
 			post.timestampISO = utils.toISOString(post.timestamp);
 			post.authorized = permissions[index];
+
+			// Handle anonymous posts:
+			// - If the viewer is NOT authorized to see the author, mask profile info.
+			// - If the viewer IS authorized, show the real author but mark the post
+			//   so the UI can indicate it was posted anonymously.
+			if (post.anonymous) {
+				if (post.authorized) {
+					// Viewer can see the real author; add flag so UI can render an
+					// anonymous marker while still linking the profile.
+					post.anonymousVisible = true;
+					// Show private indicator for admin/mod: this post is private/anonymous
+					post.showPrivateIndicator = true;
+				}
+			}
+
 			tidToPost[post.tid] = post;
 		});
 		await Promise.all(postData.map(p => posts.parsePost(p, 'plaintext')));
