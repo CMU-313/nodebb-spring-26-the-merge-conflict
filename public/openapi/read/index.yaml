@@ -77,6 +77,10 @@ get:
                                               type: number
                                             content:
                                               type: string
+                                            anonymous:
+                                              type: number
+                                            authorized:
+                                              type: boolean
                                             timestampISO:
                                               type: string
                                               description: An ISO 8601 formatted date string (complementing `timestamp`)
@@ -147,6 +151,10 @@ get:
                                   sourceContent:
                                     type: string
                                     nullable: true
+                                  anonymous:
+                                    type: number
+                                  authorized:
+                                    type: boolean
                                   timestampISO:
                                     type: string
                                     description: An ISO 8601 formatted date string (complementing `timestamp`)

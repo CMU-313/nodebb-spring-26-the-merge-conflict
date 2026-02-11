@@ -155,6 +155,8 @@ PostObject:
       type: boolean
     replies:
       type: number
+    anonymous:
+      type: number
 PostDataObject:
   description: The output as returned from `Posts.getPostsData`
   allOf:
@@ -184,6 +186,8 @@ PostDataObject:
           type: number
         anonymous:
           type: number
+        authorized:
+          type: boolean
         bookmarks:
           type: number
         deleterUid:

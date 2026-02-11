@@ -109,6 +109,10 @@ TopicObject:
             sourceContent:
               type: string
               nullable: true
+            anonymous:
+              type: number
+            authorized:
+              type: boolean
             timestampISO:
               type: string
               description: An ISO 8601 formatted date string (complementing `timestamp`)
@@ -174,6 +178,10 @@ TopicObject:
           nullable: true
           type: number
         unreplied:
+          type: boolean
+        anonymous:
+          type: number
+        authorized:
           type: boolean
         icons:
           type: array

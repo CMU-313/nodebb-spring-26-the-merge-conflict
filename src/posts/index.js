@@ -7,7 +7,7 @@ const utils = require('../utils');
 const user = require('../user');
 const privileges = require('../privileges');
 const plugins = require('../plugins');
-const generateFakeProfile = require('./fakeProfile.js');
+const { generateFakeProfile } = require('./fakeProfile');
 const { checkViewPermission } = require('./permissions');
 
 const Posts = module.exports;
@@ -81,6 +81,7 @@ Posts.getPostsByPids = async function (pids, uid) {
 	// 3. Apply the mask synchronously using precomputed fake profiles
 	data.posts.forEach((post, index) => {
 		const canSee = permissions[index];
+		post.authorized = canSee;
 		const fakeUser = fakeProfiles[index];
 
 		if (post && post.anonymous && !canSee) {

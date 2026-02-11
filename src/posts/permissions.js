@@ -1,7 +1,7 @@
 'use strict';
 
 const user = require('../user');
-const privileges = require('../privileges');
+// const privileges = require('../privileges');
 const posts = require('./index'); //Olivers function to get post data, topic data, and category data
 
 /**
@@ -22,8 +22,8 @@ async function checkViewPermission(uid, pid) {
 	// We need the Topic ID (tid) to find the Category ID (cid)
 	const postData = await posts.getPostFields(pid, ['tid']);
 	if (postData && postData.tid) {
-		const cid = await posts.getTopicField(postData.tid, 'cid');
-		const isMod = await privileges.categories.isModerator(cid, uid);
+		const cid = await posts.getTopicFields(postData.tid, 'cid');
+		const isMod = await user.isModerator(cid, uid);
 		if (isMod) {
 			return true;
 		}
