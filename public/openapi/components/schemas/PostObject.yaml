@@ -172,6 +172,12 @@ PostDataObject:
         tid:
           type: number
           description: A topic identifier
+        cid:
+          oneOf:
+            - type: number
+            - type: string
+          description: A category identifier (present when post is loaded in topic context)
+          nullable: true
         content:
           type: string
         timestamp:

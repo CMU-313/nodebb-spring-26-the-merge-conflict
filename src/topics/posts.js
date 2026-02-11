@@ -118,6 +118,16 @@ module.exports = function (Topics) {
 			const userData = await method(uids);
 			return _.zipObject(uids, userData);
 		}
+
+		// Build cid -> isAdminOrMod for anonymous post display (only for posts that are anonymous and have cid)
+		const anonymousCids = _.uniq(postData
+			.filter(p => p && parseInt(p.anonymous, 10) === 1 && utils.isNumber(p.cid))
+			.map(p => parseInt(p.cid, 10)));
+		const adminOrModByCid = {};
+		await Promise.all(anonymousCids.map(async (cid) => {
+			adminOrModByCid[cid] = await privileges.categories.isAdminOrMod(cid, uid);
+		}));
+
 		const [
 			bookmarks,
 			voteData,
@@ -148,6 +158,31 @@ module.exports = function (Topics) {
 				if (meta.config.allowGuestHandles && postObj.uid === 0 && postObj.handle) {
 					postObj.user.username = validator.escape(String(postObj.handle));
 					postObj.user.displayname = postObj.user.username;
+				}
+
+				// Anonymous posts: hide real user for non-authors and non-admin/mod; show "Anonymous <animal>" placeholder
+				if (parseInt(postObj.anonymous, 10) === 1 && postObj.user) {
+					const cid = postObj.cid != null ? parseInt(postObj.cid, 10) : null;
+					const viewerIsAuthor = parseInt(uid, 10) > 0 && parseInt(uid, 10) === postObj.uid;
+					const viewerIsAdminOrMod = cid != null && adminOrModByCid[cid] === true;
+					if (!viewerIsAuthor && !viewerIsAdminOrMod) {
+						const displayName = postObj.anonymousDisplayName || 'Anonymous';
+						postObj.user = {
+							uid: 0,
+							username: displayName,
+							displayname: displayName,
+							userslug: '',
+							picture: '',
+							status: 'offline',
+							isLocal: true,
+							selectedGroups: [],
+							banned: false,
+							signature: '',
+							fullname: '',
+							custom_profile_info: [],
+						};
+						postObj.showAnonymousPlaceholder = true;
+					}
 				}
 			}
 		});
