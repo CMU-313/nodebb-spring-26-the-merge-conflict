@@ -75,10 +75,10 @@ module.exports = function (Posts) {
 		}
 
 		({ post: postData } = await plugins.hooks.fire('filter:post.create', { post: postData, data: data }));
-		await db.setObject(`post:${postData.pid}`, postData);
 
 		const topicData = await topics.getTopicFields(tid, ['cid', 'pinned']);
 		postData.cid = topicData.cid;
+		await db.setObject(`post:${postData.pid}`, postData);
 
 		await Promise.all([
 			db.sortedSetAdd('posts:pid', timestamp, postData.pid),
