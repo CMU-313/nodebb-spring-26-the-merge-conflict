@@ -35,13 +35,13 @@ recentController.getData = async function (req, url, sort, selectedTerm = 'allti
 
 	//get priveleges
 	const [settings, categoryData, tagData, rssToken, canPost, isPrivileged] = await Promise.all([
-        user.getSettings(req.uid),
-        helpers.getSelectedCategory(cid),
-        helpers.getSelectedTag(tag),
-        user.auth.getFeedToken(req.uid),
-        privileges.categories.canPostTopic(req.uid),
-        user.isPrivileged(req.uid),
-    ]);
+		user.getSettings(req.uid),
+		helpers.getSelectedCategory(cid),
+		helpers.getSelectedTag(tag),
+		user.auth.getFeedToken(req.uid),
+		privileges.categories.canPostTopic(req.uid),
+		user.isPrivileged(req.uid),
+	]);
 
 	const start = Math.max(0, (page - 1) * settings.topicsPerPage);
 	const stop = start + settings.topicsPerPage - 1;
@@ -60,26 +60,26 @@ recentController.getData = async function (req, url, sort, selectedTerm = 'allti
 	});
 
 	// If the viewer is not privileged (Admin/Mod), make anonymous 
-    if (!isPrivileged && data.topics) {
-        data.topics.forEach((topic) => {
+	if (!isPrivileged && data.topics) {
+		data.topics.forEach((topic) => {
 			//srub the topic starter
-            if (topic.anonymous && topic.user) {
-                topic.user.username = 'Anonymous';
-                topic.user.userslug = '';
-                topic.user.picture = '';
-                topic.user['icon:text'] = '?';
-                topic.user['icon:bgColor'] = '#666';
-            }
+			if (topic.anonymous && topic.user) {
+				topic.user.username = 'Anonymous';
+				topic.user.userslug = '';
+				topic.user.picture = '';
+				topic.user['icon:text'] = '?';
+				topic.user['icon:bgColor'] = '#666';
+			}
 			//scrub the last reply
-            if (topic.teaser && topic.teaser.anonymous && topic.teaser.user) {
-                topic.teaser.user.username = 'Anonymous';
-                topic.teaser.user.userslug = '';
-                topic.teaser.user.picture = '';
-                topic.teaser.user['icon:text'] = '?';
-                topic.teaser.user['icon:bgColor'] = '#666';
-            }
-        });
-    }
+			if (topic.teaser && topic.teaser.anonymous && topic.teaser.user) {
+				topic.teaser.user.username = 'Anonymous';
+				topic.teaser.user.userslug = '';
+				topic.teaser.user.picture = '';
+				topic.teaser.user['icon:text'] = '?';
+				topic.teaser.user['icon:bgColor'] = '#666';
+			}
+		});
+	}
 
 	const isDisplayedAsHome = !(req.originalUrl.startsWith(`${relative_path}/api/${url}`) || req.originalUrl.startsWith(`${relative_path}/${url}`));
 	const baseUrl = isDisplayedAsHome ? '' : url;
