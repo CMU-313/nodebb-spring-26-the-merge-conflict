@@ -26,7 +26,7 @@ describe('Private Profile Feature', () => {
 		await user.saveSettings(testUid, {
 			privateProfile: 1, 
 			postsPerPage: 20,
-			topicsPerPage: 20
+			topicsPerPage: 20,
 		});
 
 		// Fetch the settings again to see if it actually saved
@@ -39,7 +39,7 @@ describe('Private Profile Feature', () => {
 		await user.saveSettings(testUid, {
 			privateProfile: 0,
 			postsPerPage: 20,
-			topicsPerPage: 20
+			topicsPerPage: 20,
 		});
 
 		const settings = await user.getSettings(testUid);
