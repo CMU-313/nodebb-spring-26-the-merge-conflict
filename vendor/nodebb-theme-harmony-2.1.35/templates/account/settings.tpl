@@ -1,5 +1,3 @@
-<!-- IMPORT partials/account/header.tpl -->
-
 <div class="d-flex justify-content-between py-1 mb-3 align-items-center position-sticky top-0 bg-body">
 	<h3 class="fw-semibold fs-5 mb-0">{{{ if isSelf }}}[[pages:account/settings]]{{{ else }}}[[pages:account/settings-of, {username}]]{{{ end }}}</h3>
 	<button id="submitBtn" class="btn btn-sm btn-primary">[[global:save-changes]]</button>
@@ -40,6 +38,11 @@
 
 		<h6 class="fw-bold">[[global:privacy]]</h6>
 
+<div class="form-check form-switch">
+	<input class="form-check-input" type="checkbox" role="switch" id="privateProfile" data-property="privateProfile" onchange="console.log('Private Profile variable changed to:', this.checked)" {{{ if settings.privateProfile }}}checked{{{ end }}}/>
+	<label class="form-check-label text-sm" for="privateProfile">Make Profile Private</label>
+</div>
+<p class="form-text text-xs mb-3">Enable this to hide your profile details from other users.</p>
 		{{{ if !hideEmail }}}
 		<div class="form-check form-switch">
 			<input class="form-check-input" type="checkbox" role="switch" id="showemail" data-property="showemail" {{{ if settings.showemail }}}checked {{{ end }}}/>
@@ -264,5 +267,3 @@
 		</div>
 	</div>
 </div>
-
-<!-- IMPORT partials/account/footer.tpl -->

@@ -141,6 +141,9 @@ Settings:
     notificationType_group-request-membership:
       type: string
       description: Notification type for group membership requests
+    privateProfile:
+      type: boolean
+      description: Make user profile private
     uid:
       type: number
       description: A user identifier
@@ -177,4 +180,5 @@ Settings:
     - notificationType_new-user-flag
     - categoryWatchState
     - notificationType_group-request-membership
+    - privateProfile
     - uid

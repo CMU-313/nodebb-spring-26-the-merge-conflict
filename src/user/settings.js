@@ -1,4 +1,3 @@
-
 'use strict';
 
 const validator = require('validator');
@@ -53,6 +52,10 @@ module.exports = function (User) {
 
 		const defaultTopicsPerPage = meta.config.topicsPerPage;
 		const defaultPostsPerPage = meta.config.postsPerPage;
+
+		// --- CHANGE START: Added privateProfile default ---
+		settings.privateProfile = parseInt(getSetting(settings, 'privateProfile', 0), 10) === 1;
+		// --- CHANGE END ---
 
 		settings.showemail = parseInt(getSetting(settings, 'showemail', 0), 10) === 1;
 		settings.showfullname = parseInt(getSetting(settings, 'showfullname', 0), 10) === 1;
@@ -117,8 +120,8 @@ module.exports = function (User) {
 		const maxPostsPerPage = meta.config.maxPostsPerPage || 20;
 		if (
 			!data.postsPerPage ||
-			parseInt(data.postsPerPage, 10) <= 1 ||
-			parseInt(data.postsPerPage, 10) > maxPostsPerPage
+            parseInt(data.postsPerPage, 10) <= 1 ||
+            parseInt(data.postsPerPage, 10) > maxPostsPerPage
 		) {
 			throw new Error(`[[error:invalid-pagination-value, 2, ${maxPostsPerPage}]]`);
 		}
@@ -126,8 +129,8 @@ module.exports = function (User) {
 		const maxTopicsPerPage = meta.config.maxTopicsPerPage || 20;
 		if (
 			!data.topicsPerPage ||
-			parseInt(data.topicsPerPage, 10) <= 1 ||
-			parseInt(data.topicsPerPage, 10) > maxTopicsPerPage
+            parseInt(data.topicsPerPage, 10) <= 1 ||
+            parseInt(data.topicsPerPage, 10) > maxTopicsPerPage
 		) {
 			throw new Error(`[[error:invalid-pagination-value, 2, ${maxTopicsPerPage}]]`);
 		}
@@ -144,6 +147,9 @@ module.exports = function (User) {
 		plugins.hooks.fire('action:user.saveSettings', { uid: uid, settings: data });
 
 		const settings = {
+			// --- CHANGE START: Added privateProfile saving ---
+			privateProfile: data.privateProfile,
+			// --- CHANGE END ---
 			showemail: data.showemail,
 			showfullname: data.showfullname,
 			openOutgoingLinksInNewTab: data.openOutgoingLinksInNewTab,
