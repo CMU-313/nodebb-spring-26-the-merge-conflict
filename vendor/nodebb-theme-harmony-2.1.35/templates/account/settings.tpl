@@ -1,3 +1,5 @@
+<!-- IMPORT partials/account/header.tpl -->
+
 <div class="d-flex justify-content-between py-1 mb-3 align-items-center position-sticky top-0 bg-body">
 	<h3 class="fw-semibold fs-5 mb-0">{{{ if isSelf }}}[[pages:account/settings]]{{{ else }}}[[pages:account/settings-of, {username}]]{{{ end }}}</h3>
 	<button id="submitBtn" class="btn btn-sm btn-primary">[[global:save-changes]]</button>
@@ -267,3 +269,5 @@
 		</div>
 	</div>
 </div>
+
+<!-- IMPORT partials/account/footer.tpl -->
