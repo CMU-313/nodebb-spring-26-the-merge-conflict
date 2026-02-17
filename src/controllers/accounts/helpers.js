@@ -43,6 +43,7 @@ helpers.getUserDataByUserSlug = async function (userslug, callerUID, query = {})
 	let { userData } = results;
 	const { userSettings, isAdmin, isGlobalModerator, isModerator, canViewInfo } = results;
 	const isSelf = parseInt(callerUID, 10) === parseInt(userData.uid, 10);
+	userData.privateProfile = !!userSettings.privateProfile;
 
 	if (meta.config['reputation:disabled']) {
 		delete userData.reputation;
