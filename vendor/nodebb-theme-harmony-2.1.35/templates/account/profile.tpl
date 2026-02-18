@@ -92,6 +92,18 @@
 	</div>
 </div>
 
+{{{ else }}}
+
+<div class="account-stats container">
+	<div class="row g-2 mb-5">
+		<div class="col-12">
+			<div class="card card-header p-3 border-0 rounded-1">
+				<span class="fw-semibold">This account is private.</span>
+			</div>
+		</div>
+	</div>
+</div>
+
 {{{ end }}}
 
 <!-- IMPORT partials/account/footer.tpl -->

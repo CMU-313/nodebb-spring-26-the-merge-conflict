@@ -65,6 +65,7 @@
 				{{{ end }}}
 
 				{{{ if (canChat && !banned) }}}
+				{{{ if (!privateProfile || isSelfOrAdminOrGlobalModerator) }}}
 				<div class="btn-group flex-fill">
 					<a {{{ if hasPrivateChat }}}component="account/chat"{{{ else }}}component="account/new-chat"{{{ end }}} href="#" class="btn btn-light" role="button">[[user:chat]]</a>
 					{{{ if hasPrivateChat}}}
@@ -76,6 +77,7 @@
 					</ul>
 					{{{ end }}}
 				</div>
+				{{{ end }}}
 				{{{ end }}}
 				{{{ if !isSelf }}}
 				{{{ if (isAdmin || (canBan || canMute ))}}}
