@@ -83,3 +83,5 @@ post:
                 $ref: ../../../../components/schemas/Status.yaml#/Status
               response:
                 type: object
+    '400':
+      $ref: ../../../../components/responses/400.yaml#/400

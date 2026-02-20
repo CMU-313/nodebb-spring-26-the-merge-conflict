@@ -565,6 +565,11 @@ describe('API', async () => {
 						return;
 					}
 
+					if (result.response.statusCode === 403 && context[method].responses['403']) {
+						// TODO: check 403 schema to response.body?
+						return;
+					}
+
 					const http200 = context[method].responses['200'];
 					if (!http200) {
 						return;

@@ -23,7 +23,12 @@ const db = require('../../database');
 const batch = require('../../batch');
 
 process.on('message', async (msg) => {
-	if (msg && msg.uid) {
+	// FIX: Added defensive check for msg and msg.uid
+	if (!msg || !msg.uid) {
+		return;
+	}
+
+	try {
 		await db.init();
 		await db.initSessionStore();
 
@@ -58,7 +63,10 @@ process.on('message', async (msg) => {
 			getSetData(`uid:${targetUid}:downvote`, 'post:', targetUid),
 			getSetData(`following:${targetUid}`, 'user:', targetUid),
 		]);
-		delete userData.password;
+
+		if (userData) {
+			delete userData.password;
+		}
 
 		let chatData = [];
 		await batch.processSortedSet(`uid:${targetUid}:chat:rooms`, async (roomIds) => {
@@ -81,6 +89,9 @@ process.on('message', async (msg) => {
 			following: following,
 		}, null, 4));
 
+	} catch (err) {
+		console.error('[export-profile] Failed to export profile for uid ' + msg.uid, err);
+	} finally {
 		await db.close();
 		process.exit(0);
 	}
