@@ -161,11 +161,13 @@ module.exports = function (Topics) {
 				}
 
 				// Anonymous posts: hide real user for non-authors and non-admin/mod; show "Anonymous <animal>" placeholder
+				// Respect post.authorized from getPostsByPids (uses checkViewPermission for admin/mod/poster)
 				if (parseInt(postObj.anonymous, 10) === 1 && postObj.user) {
+					const viewerIsAuthorized = postObj.authorized === true;
 					const cid = postObj.cid != null ? parseInt(postObj.cid, 10) : null;
 					const viewerIsAuthor = parseInt(uid, 10) > 0 && parseInt(uid, 10) === postObj.uid;
 					const viewerIsAdminOrMod = cid != null && adminOrModByCid[cid] === true;
-					if (!viewerIsAuthor && !viewerIsAdminOrMod) {
+					if (!viewerIsAuthorized && !viewerIsAuthor && !viewerIsAdminOrMod) {
 						const displayName = postObj.anonymousDisplayName || 'Anonymous';
 						postObj.user = {
 							uid: 0,
