@@ -1,6 +1,6 @@
 <div class="flex-shrink-0 pe-2 border-end-md text-sm mb-3 flex-basis-md-200">
 	<div class="sticky-md-top d-flex flex-row flex-md-column flex-wrap gap-1" style="top: 1rem;z-index: 1;">
-		{{{ if (!privateProfile || isSelfOrAdminOrGlobalModerator) }}}
+		{{{ if canViewProfileContent }}}
 		<a href="{config.relative_path}/user/{userslug}" class="btn btn-ghost btn-sm text-start ff-secondary fw-semibold {{{ if template.account/profile }}}active{{{ end }}}">
 			<div class="flex-grow-1">[[global:about]]</div>
 		</a>

@@ -41,10 +41,19 @@
 		<h6 class="fw-bold">[[global:privacy]]</h6>
 
 <div class="form-check form-switch">
-	<input class="form-check-input" type="checkbox" role="switch" id="privateProfile" data-property="privateProfile" onchange="console.log('Private Profile variable changed to:', this.checked)" {{{ if settings.privateProfile }}}checked{{{ end }}}/>
+	<input class="form-check-input" type="checkbox" role="switch" id="privateProfile" data-property="privateProfile" {{{ if settings.privateProfile }}}checked{{{ end }}}/>
 	<label class="form-check-label text-sm" for="privateProfile">Make Profile Private</label>
 </div>
-<p class="form-text text-xs mb-3">Enable this to hide your profile details from other users.</p>
+<p class="form-text text-xs mb-3">Enable this to hide your profile details from other users. When enabled, others must request to follow you before they can see your profile.</p>
+		{{{ if settings.privateProfile }}}
+		<div class="mb-3" component="account/follow-requests">
+			<h6 class="fw-bold">[[user:incoming-follow-requests]]</h6>
+			<div component="account/follow-requests/list" class="d-flex flex-column gap-2">
+				<!-- Populated by JS -->
+			</div>
+			<p component="account/follow-requests/empty" class="text-muted text-sm mb-0" style="display: none;">[[user:no-incoming-follow-requests]]</p>
+		</div>
+		{{{ end }}}
 		{{{ if !hideEmail }}}
 		<div class="form-check form-switch">
 			<input class="form-check-input" type="checkbox" role="switch" id="showemail" data-property="showemail" {{{ if settings.showemail }}}checked {{{ end }}}/>

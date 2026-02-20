@@ -2,8 +2,8 @@
 
 
 define('forum/account/settings', [
-	'forum/account/header', 'components', 'api', 'alerts', 'hooks', 'autocomplete',
-], function (header, components, api, alerts, hooks, autocomplete) {
+	'forum/account/header', 'components', 'api', 'alerts', 'hooks', 'autocomplete', 'translator',
+], function (header, components, api, alerts, hooks, autocomplete, translator) {
 	const AccountSettings = {};
 	let savedSkin = '';
 	// If page skin is changed but not saved, switch the skin back
@@ -47,7 +47,75 @@ define('forum/account/settings', [
 		components.get('user/sessions').find('.timeago').timeago();
 
 		handleChatAllowDenyList();
+		handleFollowRequests();
 	};
+
+	function handleFollowRequests() {
+		const container = components.get('account/follow-requests');
+		if (!container.length || !ajaxify.data.settings?.privateProfile) {
+			return;
+		}
+		loadFollowRequests();
+
+		container.on('click', '[component="account/follow-requests/accept"]', async function () {
+			const requesterUid = $(this).data('requester-uid');
+			try {
+				await api.put(`/users/${ajaxify.data.uid}/follow-requests/${requesterUid}/accept`, {});
+				alerts.success('[[user:follow-request-accepted]]');
+				loadFollowRequests();
+			} catch (err) {
+				alerts.error(err);
+			}
+		});
+
+		container.on('click', '[component="account/follow-requests/reject"]', async function () {
+			const requesterUid = $(this).data('requester-uid');
+			try {
+				await api.del(`/users/${ajaxify.data.uid}/follow-requests/${requesterUid}/reject`, {});
+				alerts.success('[[user:follow-request-rejected]]');
+				loadFollowRequests();
+			} catch (err) {
+				alerts.error(err);
+			}
+		});
+	}
+
+	async function loadFollowRequests() {
+		const listEl = components.get('account/follow-requests/list');
+		const emptyEl = components.get('account/follow-requests/empty');
+		if (!listEl.length) {
+			return;
+		}
+		try {
+			const { users } = await api.get(`/users/${ajaxify.data.uid}/follow-requests`, {});
+			listEl.empty();
+			if (!users || !users.length) {
+				emptyEl.show();
+				return;
+			}
+			emptyEl.hide();
+			const [acceptText, rejectText] = await Promise.all([
+				translator.translate('[[user:accept]]'),
+				translator.translate('[[user:reject]]'),
+			]);
+			users.forEach((u) => {
+				const avatar = u.picture ? `<img src="${u.picture}" class="rounded-circle" style="width:24px;height:24px" />` : '';
+				const item = $(`
+					<div class="d-flex align-items-center gap-2 p-2 rounded-1 text-bg-light" data-uid="${u.uid}">
+						${avatar}
+						<a href="${config.relative_path}/user/${u.userslug}">${(u.displayname || u.username || '').replace(/</g, '&lt;')}</a>
+						<div class="ms-auto d-flex gap-1">
+							<button component="account/follow-requests/accept" data-requester-uid="${u.uid}" class="btn btn-sm btn-primary">${acceptText}</button>
+							<button component="account/follow-requests/reject" data-requester-uid="${u.uid}" class="btn btn-sm btn-outline-danger">${rejectText}</button>
+						</div>
+					</div>
+				`);
+				listEl.append(item);
+			});
+		} catch (err) {
+			emptyEl.show();
+		}
+	}
 
 	function loadSettings() {
 		const settings = {};

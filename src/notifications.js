@@ -38,6 +38,7 @@ Notifications.baseTypes = [
 	'notificationType_new-reply',
 	'notificationType_post-edit',
 	'notificationType_follow',
+	'notificationType_follow-request',
 	'notificationType_new-chat',
 	'notificationType_new-group-chat',
 	'notificationType_new-public-chat',

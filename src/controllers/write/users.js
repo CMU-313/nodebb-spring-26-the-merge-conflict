@@ -96,11 +96,11 @@ Users.follow = async (req, res) => {
 	const remote = String(req.params.uid).includes('@');
 	if (remote) {
 		await activitypub.out.follow('uid', req.uid, req.params.uid);
+		helpers.formatApiResponse(200, res);
 	} else {
-		await api.users.follow(req, req.params);
+		const result = await api.users.follow(req, req.params);
+		helpers.formatApiResponse(200, res, result);
 	}
-
-	helpers.formatApiResponse(200, res);
 };
 
 Users.unfollow = async (req, res) => {
@@ -110,6 +110,31 @@ Users.unfollow = async (req, res) => {
 	} else {
 		await api.users.unfollow(req, req.params);
 	}
+	helpers.formatApiResponse(200, res);
+};
+
+Users.getIncomingFollowRequests = async (req, res) => {
+	const data = await api.users.getIncomingFollowRequests(req, {
+		...req.params,
+		start: req.query.start,
+		stop: req.query.stop,
+	});
+	helpers.formatApiResponse(200, res, data);
+};
+
+Users.acceptFollowRequest = async (req, res) => {
+	await api.users.acceptFollowRequest(req, {
+		uid: req.params.uid,
+		requesterUid: req.params.requesterUid,
+	});
+	helpers.formatApiResponse(200, res);
+};
+
+Users.rejectFollowRequest = async (req, res) => {
+	await api.users.rejectFollowRequest(req, {
+		uid: req.params.uid,
+		requesterUid: req.params.requesterUid,
+	});
 	helpers.formatApiResponse(200, res);
 };
 

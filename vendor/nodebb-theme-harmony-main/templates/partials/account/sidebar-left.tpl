@@ -1,5 +1,6 @@
 <div class="flex-shrink-0 pe-2 border-end-md text-sm mb-3 flex-basis-md-200">
 	<div class="sticky-md-top d-flex flex-row flex-md-column flex-wrap gap-1" style="top: 1rem;z-index: 1;">
+		{{{ if canViewProfileContent }}}
 		<a href="{config.relative_path}/user/{userslug}" class="btn btn-ghost btn-sm text-start ff-secondary fw-semibold {{{ if template.account/profile }}}active{{{ end }}}">
 			<div class="flex-grow-1">[[global:about]]</div>
 		</a>
@@ -46,6 +47,7 @@
 			<div class="flex-grow-1">[[user:following]]</div>
 			<span class="flex-shrink-0 text-xs" title="{counts.following}">{humanReadableNumber(counts.following)}</span>
 		</a>
+		{{{ end }}}
 
 		{{{ if canEdit }}}
 		<a href="{config.relative_path}/user/{userslug}/categories" class="btn btn-ghost btn-sm text-start ff-secondary fw-semibold d-flex gap-2 align-items-center

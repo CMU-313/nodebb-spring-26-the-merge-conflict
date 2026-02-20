@@ -1,7 +1,6 @@
 <!-- IMPORT partials/account/header.tpl -->
-<!-- DEBUG privateProfile={{{ if privateProfile }}}true{{{ else }}}false{{{ end }}} isSelfOrAdminOrGlobalModerator={{{ if isSelfOrAdminOrGlobalModerator }}}true{{{ else }}}false{{{ end }}} -->
 
-{{{ if (!privateProfile || isSelfOrAdminOrGlobalModerator) }}}
+{{{ if canViewProfileContent }}}
 
 {{{ if widgets.profile-aboutme-before.length }}}
 <div data-widget-area="profile-aboutme-before">

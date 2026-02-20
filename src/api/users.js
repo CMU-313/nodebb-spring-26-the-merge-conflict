@@ -174,12 +174,21 @@ usersAPI.changePassword = async function (caller, data) {
 };
 
 usersAPI.follow = async function (caller, data) {
-	await user.follow(caller.uid, data.uid);
-	await user.onFollow(caller.uid, data.uid);
-	plugins.hooks.fire('action:user.follow', {
-		fromUid: caller.uid,
-		toUid: data.uid,
-	});
+	const result = await user.follow(caller.uid, data.uid);
+	if (result && result.createdRequest) {
+		await user.onFollowRequest(caller.uid, data.uid);
+		plugins.hooks.fire('action:user.followRequest', {
+			fromUid: caller.uid,
+			toUid: data.uid,
+		});
+	} else {
+		await user.onFollow(caller.uid, data.uid);
+		plugins.hooks.fire('action:user.follow', {
+			fromUid: caller.uid,
+			toUid: data.uid,
+		});
+	}
+	return result;
 };
 
 usersAPI.unfollow = async function (caller, data) {
@@ -188,6 +197,28 @@ usersAPI.unfollow = async function (caller, data) {
 		fromUid: caller.uid,
 		toUid: data.uid,
 	});
+};
+
+usersAPI.getIncomingFollowRequests = async function (caller, data) {
+	if (parseInt(caller.uid, 10) !== parseInt(data.uid, 10)) {
+		throw new Error('[[error:no-privileges]]');
+	}
+	const { start = 0, stop = 19 } = data;
+	return await user.getIncomingFollowRequests(data.uid, start, stop);
+};
+
+usersAPI.acceptFollowRequest = async function (caller, data) {
+	if (parseInt(caller.uid, 10) !== parseInt(data.uid, 10)) {
+		throw new Error('[[error:no-privileges]]');
+	}
+	await user.acceptFollowRequest(data.uid, data.requesterUid);
+};
+
+usersAPI.rejectFollowRequest = async function (caller, data) {
+	if (parseInt(caller.uid, 10) !== parseInt(data.uid, 10)) {
+		throw new Error('[[error:no-privileges]]');
+	}
+	await user.rejectFollowRequest(data.uid, data.requesterUid);
 };
 
 usersAPI.ban = async function (caller, data) {

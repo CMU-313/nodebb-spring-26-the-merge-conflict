@@ -65,6 +65,7 @@
 	"user-posted-topic-in-category": "<strong>%1</strong> has posted a new topic in <strong>%2</strong>",
 
 	"user-started-following-you": "<strong>%1</strong> started following you.",
+	"user-requested-to-follow-you": "<strong>%1</strong> requested to follow you.",
 	"user-started-following-you-dual": "<strong>%1</strong> and <strong>%2</strong> started following you.",
 	"user-started-following-you-triple": "<strong>%1</strong>, <strong>%2</strong> and <strong>%3</strong> started following you.",
 	"user-started-following-you-multiple": "<strong>%1</strong>, <strong>%2</strong> and %3 others started following you.",
@@ -96,6 +97,7 @@
 	"notificationType-new-reply": "When a new reply is posted in a topic you are watching",
 	"notificationType-post-edit": "When a post is edited in a topic you are watching",
 	"notificationType-follow": "When someone starts following you",
+	"notificationType-follow-request": "When someone requests to follow you",
 	"notificationType-new-chat": "When you receive a chat message",
 	"notificationType-new-group-chat": "When you receive a group chat message",
 	"notificationType-new-public-chat": "When you receive a public group chat message",

@@ -124,16 +124,21 @@ describe('Private Profile Feature', () => {
 			});
 		});
 
-		// TEST 8: Allow following private profiles (they go into followers list)
-		it('should allow users to follow private profiles', async () => {
-			// Following should work, but the relationship created tracks who can see private data
-			await user.follow(attemptFollowerUid, privateProfileUid);
+		// TEST 8: Following private profiles creates a request (not direct follow)
+		it('should create follow request when following private profiles', async () => {
+			const result = await user.follow(attemptFollowerUid, privateProfileUid);
+			assert.strictEqual(result.createdRequest, true, 'Should create request for private profile');
+			const isPending = await user.isFollowPending(attemptFollowerUid, privateProfileUid);
+			assert.strictEqual(isPending, true, 'Should have pending follow request');
 			const isFollowing = await user.isFollowing(attemptFollowerUid, privateProfileUid);
-			assert.strictEqual(isFollowing, true, 'Should be able to follow private profile');
+			assert.strictEqual(isFollowing, false, 'Should not be following until request is accepted');
 		});
 
-		// TEST 9: Followers of private profiles can access private data
-		it('should grant followers access to private profile data', async () => {
+		// TEST 9: Profile owner can accept follow request; then follower can access private data
+		it('should grant followers access to private profile data after accepting request', async () => {
+			await user.acceptFollowRequest(privateProfileUid, attemptFollowerUid);
+			const isFollowing = await user.isFollowing(attemptFollowerUid, privateProfileUid);
+			assert.strictEqual(isFollowing, true, 'Should be following after request accepted');
 			const followers = await user.getFollowers(privateProfileUid, 0, -1);
 			assert.ok(followers.some(f => f.uid === attemptFollowerUid), 'Follower should be in followers list');
 		});
@@ -163,8 +168,9 @@ describe('Private Profile Feature', () => {
 				topicsPerPage: 20,
 			});
 			
-			// Make followerCheckUid follow the restricted profile
+			// Make followerCheckUid follow the restricted profile (request + accept)
 			await user.follow(followerCheckUid, restrictedProfileUid);
+			await user.acceptFollowRequest(restrictedProfileUid, followerCheckUid);
 		});
 
 		// TEST 11: hidePrivateData should respect private profile setting

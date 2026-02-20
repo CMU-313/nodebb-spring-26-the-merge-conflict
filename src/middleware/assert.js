@@ -25,6 +25,14 @@ const controllerHelpers = require('../controllers/helpers');
 
 const Assert = module.exports;
 
+Assert.self = helpers.try(async (req, res, next) => {
+	const uid = req.params.uid || res.locals.uid;
+	if (parseInt(req.uid, 10) > 0 && parseInt(uid, 10) === parseInt(req.uid, 10)) {
+		return next();
+	}
+	controllerHelpers.formatApiResponse(403, res, new Error('[[error:no-privileges]]'));
+});
+
 Assert.user = helpers.try(async (req, res, next) => {
 	const uid = req.params.uid || res.locals.uid;
 
