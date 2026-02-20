@@ -100,9 +100,11 @@ describe('Private Profile Feature', () => {
 
 		// TEST 7: Follower can view private profile
 		it('should allow followers to view private profile data', async () => {
-			// Setup: Make viewerUid follow profileOwnerUid
+			// Setup: Make viewerUid follow profileOwnerUid (creates request for private profile)
 			await user.follow(viewerUid, profileOwnerUid);
-			
+			// Accept the request so viewer becomes a follower
+			await user.acceptFollowRequest(profileOwnerUid, viewerUid);
+
 			const isFollowing = await user.isFollowing(viewerUid, profileOwnerUid);
 			assert.strictEqual(isFollowing, true, 'Should be following');
 		});
@@ -220,8 +222,9 @@ describe('Private Profile Feature', () => {
 				topicsPerPage: 20,
 			});
 			
-			// Follow
+			// Follow (creates request for private profile, then accept)
 			await user.follow(unfollowUid, privateOwner);
+			await user.acceptFollowRequest(privateOwner, unfollowUid);
 			assert.strictEqual(
 				await user.isFollowing(unfollowUid, privateOwner),
 				true,

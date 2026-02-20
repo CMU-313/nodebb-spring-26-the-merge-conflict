@@ -81,7 +81,8 @@ helpers.getUserDataByUserSlug = async function (userslug, callerUID, query = {})
 	userData.isAdminOrGlobalModerator = isAdmin || isGlobalModerator;
 	userData.isAdminOrGlobalModeratorOrModerator = isAdmin || isGlobalModerator || isModerator;
 	userData.isSelfOrAdminOrGlobalModerator = isSelf || isAdmin || isGlobalModerator;
-	userData.canViewProfileContent = !userData.privateProfile || userData.isSelfOrAdminOrGlobalModerator || results.isFollowing;
+	userData.canViewProfileContent = !userData.privateProfile ||
+		userData.isSelfOrAdminOrGlobalModerator || results.isFollowing;
 	userData.canEdit = results.canEdit;
 	userData.canBan = results.canBanUser;
 	userData.canMute = results.canMuteUser;

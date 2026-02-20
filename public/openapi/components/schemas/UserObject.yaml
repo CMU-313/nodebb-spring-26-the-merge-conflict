@@ -425,6 +425,9 @@ UserObjectFull:
       type: boolean
     isSelfOrAdminOrGlobalModerator:
       type: boolean
+    canViewProfileContent:
+      type: boolean
+      description: Whether the viewer can see full profile content
     canEdit:
       type: boolean
     canBan:

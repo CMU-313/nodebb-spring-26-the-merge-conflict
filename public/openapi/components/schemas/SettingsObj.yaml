@@ -105,6 +105,9 @@ Settings:
     notificationType_follow:
       type: string
       description: Notification type for another user following you
+    notificationType_follow-request:
+      type: string
+      description: Notification type for follow requests (when profile is private)
     notificationType_group-invite:
       type: string
       description: Notification type for group invitations
@@ -170,6 +173,7 @@ Settings:
     - notificationType_upvote
     - notificationType_new-topic
     - notificationType_follow
+    - notificationType_follow-request
     - notificationType_group-invite
     - notificationType_group-leave
     - upvoteNotifFreq

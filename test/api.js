@@ -277,6 +277,9 @@ describe('API', async () => {
 		mocks.delete['/posts/{pid}/diffs/{timestamp}'][0].example = unprivTopic.postData.pid;
 		mocks.delete['/posts/{pid}/diffs/{timestamp}'][1].example = (await posts.diffs.list(unprivTopic.postData.pid))[0];
 
+		// Create pending follow request (unpriv -> admin) for PUT /users/{uid}/follow-requests/{requesterUid}/accept
+		await db.sortedSetAdd(`followRequests:uid.${adminUid}`, Date.now(), unprivUid);
+
 		// Create a sample flag
 		const { flagId } = await flags.create('post', 1, unprivUid, 'sample reasons', Date.now()); // deleted in DELETE /api/v3/flags/1
 		await flags.appendNote(flagId, 1, 'test note', 1626446956652);

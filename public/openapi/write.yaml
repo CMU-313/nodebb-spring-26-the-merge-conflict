@@ -76,6 +76,12 @@ paths:
     $ref: 'write/users/uid/password.yaml'
   /users/{uid}/follow:
     $ref: 'write/users/uid/follow.yaml'
+  /users/{uid}/follow-requests:
+    $ref: 'write/users/uid/follow-requests.yaml'
+  /users/{uid}/follow-requests/{requesterUid}/accept:
+    $ref: 'write/users/uid/follow-requests/requesterUid/accept.yaml'
+  /users/{uid}/follow-requests/{requesterUid}/reject:
+    $ref: 'write/users/uid/follow-requests/requesterUid/reject.yaml'
   /users/{uid}/ban:
     $ref: 'write/users/uid/ban.yaml'
   /users/{uid}/mute:
