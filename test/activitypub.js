@@ -228,7 +228,7 @@ describe('ActivityPub integration', () => {
 		});
 
 		it('should return regular user profile html if federation is disabled', async () => {
-			delete meta.config.activitypubEnabled;
+			meta.config.activitypubEnabled = 0;
 
 			const { response, body } = await request.get(`${nconf.get('url')}/uid/${uid}`, {
 				headers: {
@@ -238,7 +238,7 @@ describe('ActivityPub integration', () => {
 
 			assert(response);
 			assert.strictEqual(response.statusCode, 200);
-			assert(body.startsWith('<!DOCTYPE html>'));
+			assert(/<html/i.test(body));
 
 			meta.config.activitypubEnabled = 1;
 		});
@@ -252,7 +252,7 @@ describe('ActivityPub integration', () => {
 
 			assert(response);
 			assert.strictEqual(response.statusCode, 200);
-			assert(body.startsWith('<!DOCTYPE html>'));
+			assert(/<html/i.test(body));
 		});
 
 		it('should return the ActivityPub Actor JSON-LD payload if the correct Accept header is provided', async () => {

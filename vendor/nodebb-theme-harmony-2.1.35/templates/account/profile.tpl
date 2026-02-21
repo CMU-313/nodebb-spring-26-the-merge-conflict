@@ -1,5 +1,7 @@
 <!-- IMPORT partials/account/header.tpl -->
 
+{{{ if canViewProfileContent }}}
+
 {{{ if widgets.profile-aboutme-before.length }}}
 <div data-widget-area="profile-aboutme-before">
 {{{each widgets.profile-aboutme-before}}}
@@ -88,5 +90,7 @@
 		{{{ end }}}
 	</div>
 </div>
+
+{{{ end }}}
 
 <!-- IMPORT partials/account/footer.tpl -->

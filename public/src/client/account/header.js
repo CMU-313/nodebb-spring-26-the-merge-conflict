@@ -110,13 +110,17 @@ define('forum/account/header', [
 
 	function toggleFollow(type) {
 		const target = isFinite(ajaxify.data.uid) ? ajaxify.data.uid : encodeURIComponent(ajaxify.data.userslug);
-		api[type === 'follow' ? 'put' : 'del']('/users/' + target + '/follow', undefined, function (err) {
+		api[type === 'follow' ? 'put' : 'del']('/users/' + target + '/follow', undefined, function (err, data) {
 			if (err) {
 				return alerts.error(err);
 			}
 			components.get('account/follow').toggleClass('hide', type === 'follow');
 			components.get('account/unfollow').toggleClass('hide', type === 'unfollow');
-			alerts.success('[[global:alert.' + type + ', ' + ajaxify.data.username + ']]');
+			const createdRequest = data && (data.response?.createdRequest || data.createdRequest);
+			const msg = (type === 'follow' && createdRequest) ?
+				'[[user:follow-request-sent]]' :
+				'[[global:alert.' + type + ', ' + ajaxify.data.username + ']]';
+			alerts.success(msg);
 		});
 
 		return false;

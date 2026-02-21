@@ -80,10 +80,20 @@ async function getNotices() {
 }
 
 async function getLatestVersion() {
+	let timeoutId;
+	const timeout = new Promise((resolve) => {
+		timeoutId = setTimeout(() => resolve(null), 1500);
+	});
+
 	try {
-		return await versions.getLatestVersion();
+		return await Promise.race([
+			versions.getLatestVersion(),
+			timeout,
+		]);
 	} catch (err) {
 		winston.error(`[acp] Failed to fetch latest version\n${err.stack}`);
+	} finally {
+		clearTimeout(timeoutId);
 	}
 	return null;
 }

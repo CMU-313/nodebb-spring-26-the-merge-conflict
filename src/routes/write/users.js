@@ -37,6 +37,9 @@ function authenticatedRoutes() {
 
 	setupApiRoute(router, 'put', '/:uid/follow', [...middlewares, middleware.assert.user], controllers.write.users.follow);
 	setupApiRoute(router, 'delete', '/:uid/follow', [...middlewares, middleware.assert.user], controllers.write.users.unfollow);
+	setupApiRoute(router, 'get', '/:uid/follow-requests', [...middlewares, middleware.assert.user, middleware.assert.self], controllers.write.users.getIncomingFollowRequests);
+	setupApiRoute(router, 'put', '/:uid/follow-requests/:requesterUid/accept', [...middlewares, middleware.assert.user, middleware.assert.self], controllers.write.users.acceptFollowRequest);
+	setupApiRoute(router, 'delete', '/:uid/follow-requests/:requesterUid/reject', [...middlewares, middleware.assert.user, middleware.assert.self], controllers.write.users.rejectFollowRequest);
 
 	setupApiRoute(router, 'put', '/:uid/ban', [...middlewares, middleware.assert.user], controllers.write.users.ban);
 	setupApiRoute(router, 'delete', '/:uid/ban', [...middlewares, middleware.assert.user], controllers.write.users.unban);

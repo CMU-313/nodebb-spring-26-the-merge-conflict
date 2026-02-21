@@ -159,6 +159,9 @@ UserObject:
       type: string
       description: An ISO 8601 formatted date string representing the moment a ban will be lifted, or the words "Not Banned"
       example: Not Banned
+    privateProfile:
+      type: boolean
+      description: Whether the user's profile is hidden from non-followers
   required:
     - uid
     - username
@@ -362,6 +365,9 @@ UserObjectFull:
       example: Not Banned
     aboutmeParsed:
       type: string
+    privateProfile:
+      type: boolean
+      description: Whether the user's profile is hidden from non-followers
     age:
       type: number
     emailHidden:
@@ -419,6 +425,9 @@ UserObjectFull:
       type: boolean
     isSelfOrAdminOrGlobalModerator:
       type: boolean
+    canViewProfileContent:
+      type: boolean
+      description: Whether the viewer can see full profile content
     canEdit:
       type: boolean
     canBan:
@@ -720,12 +729,12 @@ BanMuteArray:
           uid:
             type: number
             description: A user identifier
-          icon:text:
+          'icon:text':
             type: string
             description: A single-letter representation of a username. This is used in the
               auto-generated icon given to users without
               an avatar
-          icon:bgColor:
+          'icon:bgColor':
             type: string
             description: A six-character hexadecimal colour code assigned to the user. This
               value is used in conjunction with

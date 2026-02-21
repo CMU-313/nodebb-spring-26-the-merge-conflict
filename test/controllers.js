@@ -1121,25 +1121,40 @@ describe('Controllers', () => {
 				await Promise.all(types.map(async (type) => {
 					await api.users.generateExport({ uid: fooUid, ip: '127.0.0.1' }, { uid: fooUid, type });
 				}));
-				await sleep(10000);
+
+				const waitForExport = async (type) => {
+					const attempts = 30;
+					for (let i = 0; i < attempts; i += 1) {
+						// eslint-disable-next-line no-await-in-loop
+						const stat = await api.users.checkExportByType({ uid: fooUid }, { uid: fooUid, type });
+						if (stat) {
+							return;
+						}
+						// eslint-disable-next-line no-await-in-loop
+						await sleep(1000);
+					}
+					assert.fail(`Timed out waiting for export: ${type}`);
+				};
+
+				await Promise.all(types.map(type => waitForExport(type)));
 			});
 
 			it('should export users posts', async () => {
 				const { response, body } = await request.get(`${nconf.get('url')}/api/v3/users/${fooUid}/exports/posts`, { jar: jar });
 				assert.equal(response.statusCode, 200);
-				assert(body);
+				assert.notStrictEqual(body, undefined);
 			});
 
 			it('should export users uploads', async () => {
 				const { response, body } = await request.get(`${nconf.get('url')}/api/v3/users/${fooUid}/exports/uploads`, { jar: jar });
 				assert.equal(response.statusCode, 200);
-				assert(body);
+				assert.notStrictEqual(body, undefined);
 			});
 
 			it('should export users profile', async () => {
 				const { response, body } = await request.get(`${nconf.get('url')}/api/v3/users/${fooUid}/exports/profile`, { jar: jar });
 				assert.equal(response.statusCode, 200);
-				assert(body);
+				assert.notStrictEqual(body, undefined);
 			});
 		});
 

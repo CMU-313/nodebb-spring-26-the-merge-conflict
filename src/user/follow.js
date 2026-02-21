@@ -9,7 +9,7 @@ const utils = require('../utils');
 
 module.exports = function (User) {
 	User.follow = async function (uid, followuid) {
-		await toggleFollow('follow', uid, followuid);
+		return await toggleFollow('follow', uid, followuid);
 	};
 
 	User.unfollow = async function (uid, unfollowuid) {
@@ -24,9 +24,10 @@ module.exports = function (User) {
 		if (parseInt(uid, 10) === parseInt(theiruid, 10)) {
 			throw new Error('[[error:you-cant-follow-yourself]]');
 		}
-		const [exists, isFollowing] = await Promise.all([
+		const [exists, isFollowing, isPending] = await Promise.all([
 			User.exists(theiruid),
 			User.isFollowing(uid, theiruid),
+			User.isFollowPending(uid, theiruid),
 		]);
 		if (!exists) {
 			throw new Error('[[error:no-user]]');
@@ -37,26 +38,47 @@ module.exports = function (User) {
 			uid,
 			theiruid,
 			isFollowing,
+			isPending,
 		});
 
 		if (type === 'follow') {
 			if (isFollowing) {
 				throw new Error('[[error:already-following]]');
 			}
-			const now = Date.now();
-			await db.sortedSetAddBulk([
-				[`following:${uid}`, now, theiruid],
-				[`followers:${theiruid}`, now, uid],
-			]);
-		} else {
-			if (!isFollowing) {
-				throw new Error('[[error:not-following]]');
+			if (isPending) {
+				throw new Error('[[error:follow-request-already-sent]]');
 			}
+			// Local users only: check if target has private profile -> create request instead of direct follow
+			const isLocal = utils.isNumber(theiruid);
+			let createdRequest = false;
+			if (isLocal) {
+				const settings = await User.getSettings(theiruid);
+				if (settings.privateProfile) {
+					const now = Date.now();
+					await db.sortedSetAdd(`followRequests:uid.${theiruid}`, now, uid);
+					createdRequest = true;
+				}
+			}
+			if (!createdRequest) {
+				const now = Date.now();
+				await db.sortedSetAddBulk([
+					[`following:${uid}`, now, theiruid],
+					[`followers:${theiruid}`, now, uid],
+				]);
+			}
+			return { createdRequest };
+		} 
+		if (isPending) {
+			await db.sortedSetRemove(`followRequests:uid.${theiruid}`, uid);
+		} else if (!isFollowing) {
+			throw new Error('[[error:not-following]]');
+		} else {
 			await db.sortedSetRemoveBulk([
 				[`following:${uid}`, theiruid],
 				[`followers:${theiruid}`, uid],
 			]);
 		}
+		
 
 		const [followingCount, followingRemoteCount, followerCount, followerRemoteCount] = await db.sortedSetsCard([
 			`following:${uid}`, `followingRemote:${uid}`, `followers:${theiruid}`, `followersRemote:${theiruid}`,
@@ -106,12 +128,17 @@ module.exports = function (User) {
 		return await db.isSortedSetMember(`${setPrefix}:${uid}`, theirid);
 	};
 
+	// Returns true if uid (caller) has a pending follow request to target (profile owner)
 	User.isFollowPending = async function (uid, target) {
-		if (utils.isNumber(target)) {
+		if (parseInt(uid, 10) <= 0) {
 			return false;
 		}
-
-		return await db.isSortedSetMember(`followRequests:uid.${uid}`, target);
+		// Local user (numeric target): check followRequests:uid.target contains uid
+		if (utils.isNumber(target)) {
+			return await db.isSortedSetMember(`followRequests:uid.${target}`, String(uid));
+		}
+		// ActivityPub remote: followRequests:uid.{localId} keyed by target's local id
+		return await db.isSortedSetMember(`followRequests:uid.${target}`, uid);
 	};
 
 	User.onFollow = async function (uid, targetUid) {
@@ -131,5 +158,68 @@ module.exports = function (User) {
 		}
 		notifObj.user = userData;
 		await notifications.push(notifObj, [targetUid]);
+	};
+
+	User.onFollowRequest = async function (requesterUid, targetUid) {
+		const userData = await User.getUserFields(requesterUid, ['username', 'userslug']);
+		const { displayname } = userData;
+
+		const notifObj = await notifications.create({
+			type: 'follow-request',
+			bodyShort: `[[notifications:user-requested-to-follow-you, ${displayname}]]`,
+			nid: `follow-request:${targetUid}:uid:${requesterUid}`,
+			from: requesterUid,
+			path: `/user/${userData.userslug}`,
+			mergeId: 'notifications:user-requested-to-follow-you',
+		});
+		if (!notifObj) {
+			return;
+		}
+		notifObj.user = userData;
+		await notifications.push(notifObj, [targetUid]);
+	};
+
+	User.getIncomingFollowRequests = async function (uid, start, stop) {
+		if (parseInt(uid, 10) <= 0) {
+			return { users: [], count: 0 };
+		}
+		const uids = await db.getSortedSetRevRange(`followRequests:uid.${uid}`, start, stop);
+		const count = await db.sortedSetCard(`followRequests:uid.${uid}`);
+		const users = await User.getUsers(uids, uid);
+		return { users, count };
+	};
+
+	User.getIncomingFollowRequestCount = async function (uid) {
+		if (parseInt(uid, 10) <= 0) {
+			return 0;
+		}
+		return await db.sortedSetCard(`followRequests:uid.${uid}`);
+	};
+
+	User.acceptFollowRequest = async function (uid, requesterUid) {
+		const isPending = await db.isSortedSetMember(`followRequests:uid.${uid}`, String(requesterUid));
+		if (!isPending) {
+			throw new Error('[[error:no-pending-follow-request]]');
+		}
+		const timestamp = await db.sortedSetScore(`followRequests:uid.${uid}`, requesterUid);
+		await Promise.all([
+			db.sortedSetRemove(`followRequests:uid.${uid}`, requesterUid),
+			db.sortedSetAddBulk([
+				[`following:${requesterUid}`, timestamp, uid],
+				[`followers:${uid}`, timestamp, requesterUid],
+			]),
+		]);
+		const [followingCount, followerCount] = await db.sortedSetsCard([
+			`following:${requesterUid}`, `followers:${uid}`,
+		]);
+		await Promise.all([
+			User.setUserField(requesterUid, 'followingCount', followingCount),
+			User.setUserField(uid, 'followerCount', followerCount),
+		]);
+		await User.onFollow(requesterUid, uid);
+	};
+
+	User.rejectFollowRequest = async function (uid, requesterUid) {
+		await db.sortedSetRemove(`followRequests:uid.${uid}`, String(requesterUid));
 	};
 };

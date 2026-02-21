@@ -1,0 +1,29 @@
+put:
+  tags:
+    - users
+  summary: accept follow request
+  parameters:
+    - in: path
+      name: uid
+      schema:
+        type: integer
+      required: true
+      example: 1
+    - in: path
+      name: requesterUid
+      schema:
+        type: integer
+      required: true
+      example: 2
+  responses:
+    '200':
+      description: Follow request accepted
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                $ref: ../../../../../components/schemas/Status.yaml#/Status
+              response:
+                type: object
