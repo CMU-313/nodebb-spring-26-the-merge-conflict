@@ -258,6 +258,18 @@
 
 			</div>
 
+			<div id="banned-websites" class="mb-4">
+				<h5 class="fw-bold tracking-tight settings-header">[[admin/settings/general:banned-websites]]</h5>
+
+				<form>
+					<div class="mb-3">
+						<label class="form-label" for="bannedWebsites">[[admin/settings/general:banned-websites.list]]</label>
+						<input id="bannedWebsites" type="text" class="form-control" data-field="bannedWebsites" data-field-type="tagsinput" />
+						<p class="form-text">[[admin/settings/general:banned-websites.help]]</p>
+					</div>
+				</form>
+			</div>
+
 			<hr/>
 
 			<div id="site-colors" class="mb-4">
