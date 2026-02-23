@@ -258,14 +258,14 @@
 
 			</div>
 
-			<div id="banned-websites" class="mb-4">
-				<h5 class="fw-bold tracking-tight settings-header">[[admin/settings/general:banned-websites]]</h5>
+			<div id="allowed-websites" class="mb-4">
+				<h5 class="fw-bold tracking-tight settings-header">[[admin/settings/general:allowed-websites]]</h5>
 
 				<form>
 					<div class="mb-3">
-						<label class="form-label" for="bannedWebsites">[[admin/settings/general:banned-websites.list]]</label>
-						<input id="bannedWebsites" type="text" class="form-control" data-field="bannedWebsites" data-field-type="tagsinput" />
-						<p class="form-text">[[admin/settings/general:banned-websites.help]]</p>
+						<label class="form-label" for="allowedWebsites">[[admin/settings/general:allowed-websites.list]]</label>
+						<input id="allowedWebsites" type="text" class="form-control" data-field="allowedWebsites" data-field-type="tagsinput" />
+						<p class="form-text">[[admin/settings/general:allowed-websites.help]]</p>
 					</div>
 				</form>
 			</div>
