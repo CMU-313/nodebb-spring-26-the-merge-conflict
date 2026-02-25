@@ -258,6 +258,18 @@
 
 			</div>
 
+			<div id="allowed-websites" class="mb-4">
+				<h5 class="fw-bold tracking-tight settings-header">[[admin/settings/general:allowed-websites]]</h5>
+
+				<form>
+					<div class="mb-3">
+						<label class="form-label" for="allowedWebsites">[[admin/settings/general:allowed-websites.list]]</label>
+						<input id="allowedWebsites" type="text" class="form-control" data-field="allowedWebsites" data-field-type="tagsinput" />
+						<p class="form-text">[[admin/settings/general:allowed-websites.help]]</p>
+					</div>
+				</form>
+			</div>
+
 			<hr/>
 
 			<div id="site-colors" class="mb-4">
