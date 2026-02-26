@@ -107,6 +107,9 @@ module.exports = function (Topics) {
 
 		await Topics.validateTags(data.tags, data.cid, uid);
 		data.tags = await Topics.filterTags(data.tags, data.cid);
+		const checker = posts.checkContentAgainstDisallowedRules(data.sourceContent || data.content);
+		data.hasDisallowedContent = checker.hasDisallowedContent;
+		data.matchedDisallowedRule = checker.matchedRule;
 		if (!data.fromQueue && !isAdmin) {
 			Topics.checkContent(data.sourceContent || data.content);
 			if (!await posts.canUserPostContentWithLinks(uid, data.content)) {
@@ -198,6 +201,9 @@ module.exports = function (Topics) {
 
 		await guestHandleValid(data);
 		data.content = String(data.content || '').trimEnd();
+		const checker = posts.checkContentAgainstDisallowedRules(data.sourceContent || data.content);
+		data.hasDisallowedContent = checker.hasDisallowedContent;
+		data.matchedDisallowedRule = checker.matchedRule;
 
 		if (!data.fromQueue && !isAdmin) {
 			await user.isReadyToPost(uid, data.cid);
