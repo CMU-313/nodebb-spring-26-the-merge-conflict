@@ -90,3 +90,4 @@ jobs:
 
       - name: Test coverage
         uses: coverallsapp/github-action@v2
+        continue-on-error: true  # Coveralls/Cloudflare can return 530 (Origin DNS error); don't fail CI

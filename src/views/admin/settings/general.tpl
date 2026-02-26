@@ -270,6 +270,18 @@
 				</form>
 			</div>
 
+			<div id="disallowed-websites" class="mb-4">
+				<h5 class="fw-bold tracking-tight settings-header">[[admin/settings/general:disallowed-websites]]</h5>
+
+				<form>
+					<div class="mb-3">
+						<label class="form-label" for="disallowedWebsites">[[admin/settings/general:disallowed-websites.list]]</label>
+						<input id="disallowedWebsites" type="text" class="form-control" data-field="disallowedWebsites" data-field-type="tagsinput" />
+						<p class="form-text">[[admin/settings/general:disallowed-websites.help]]</p>
+					</div>
+				</form>
+			</div>
+
 			<hr/>
 
 			<div id="site-colors" class="mb-4">
