@@ -1072,6 +1072,104 @@ describe('Post\'s', () => {
 		});
 	});
 
+	describe('post link domain restrictions', () => {
+		let uid;
+		let oldMinRep;
+		let oldAllowedWebsites;
+		let oldDisallowedWebsites;
+
+		before(async () => {
+			uid = await user.create({ username: 'linkdomainuser' });
+			oldMinRep = meta.config['min:rep:post-links'];
+			oldAllowedWebsites = meta.config.allowedWebsites;
+			oldDisallowedWebsites = meta.config.disallowedWebsites;
+			meta.config['min:rep:post-links'] = 0;
+		});
+
+		after(() => {
+			meta.config['min:rep:post-links'] = oldMinRep;
+			meta.config.allowedWebsites = oldAllowedWebsites;
+			meta.config.disallowedWebsites = oldDisallowedWebsites;
+		});
+
+		it('should allow posting links when allowed list is configured and every external link is allowed', async () => {
+			meta.config.allowedWebsites = '.edu,example.org';
+			meta.config.disallowedWebsites = '';
+
+			const canPost = await posts.canUserPostContentWithLinks(
+				uid,
+				'See [CMU](https://www.cmu.edu) and [Example](https://example.org/docs).',
+			);
+
+			assert.strictEqual(canPost, true);
+		});
+
+		it('should block posting links when allowed list is configured and any external link is not allowed', async () => {
+			meta.config.allowedWebsites = '.edu,example.org';
+			meta.config.disallowedWebsites = '';
+
+			const canPost = await posts.canUserPostContentWithLinks(
+				uid,
+				'See [Bad Link](https://notallowed.com) and [Good Link](https://example.org/page).',
+			);
+
+			assert.strictEqual(canPost, false);
+		});
+
+		it('should block posting links when disallowed list contains the external link domain', async () => {
+			meta.config.allowedWebsites = '';
+			meta.config.disallowedWebsites = '.com,bad-site.org';
+
+			const canPost = await posts.canUserPostContentWithLinks(
+				uid,
+				'See [Blocked](https://foo.com/path) and [Also Blocked](https://bad-site.org).',
+			);
+
+			assert.strictEqual(canPost, false);
+		});
+
+		it('should prefer disallowed list over allowed list when a domain matches both', async () => {
+			meta.config.allowedWebsites = 'example.org';
+			meta.config.disallowedWebsites = 'example.org';
+
+			const canPost = await posts.canUserPostContentWithLinks(
+				uid,
+				'See [Example](https://example.org).',
+			);
+
+			assert.strictEqual(canPost, false);
+		});
+
+		it('should reject topic creation when content contains a non-allowed external link', async () => {
+			meta.config.allowedWebsites = 'example.org';
+			meta.config.disallowedWebsites = '';
+
+			await assert.rejects(
+				apiTopics.create(
+					{ uid: uid },
+					{ title: 'blocked links topic', content: 'See https://notallowed.com', cid: cid }
+				),
+				{ message: '[[error:not-enough-reputation-to-post-links, 0]]' }
+			);
+		});
+
+		it('should allow topic creation when all external links are in the allowed list', async () => {
+			meta.config.allowedWebsites = 'example.org,.edu';
+			meta.config.disallowedWebsites = '';
+
+			const result = await apiTopics.create(
+				{ uid: uid },
+				{
+					title: 'allowed links topic',
+					content: 'See https://example.org/docs and https://www.cmu.edu',
+					cid: cid,
+				}
+			);
+
+			assert.strictEqual(result.topicData.title, 'allowed links topic');
+		});
+	});
+
 	describe('post editors', () => {
 		it('should fail with invalid data', async () => {
 			await assert.rejects(
