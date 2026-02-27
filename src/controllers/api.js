@@ -43,6 +43,7 @@ apiController.loadConfig = async function (req) {
 		maximumTitleLength: meta.config.maximumTitleLength,
 		minimumPostLength: meta.config.minimumPostLength,
 		maximumPostLength: meta.config.maximumPostLength,
+		disallowedWebsites: meta.config.disallowedWebsites || '',
 		minimumTagsPerTopic: meta.config.minimumTagsPerTopic || 0,
 		maximumTagsPerTopic: meta.config.maximumTagsPerTopic || 5,
 		minimumTagLength: meta.config.minimumTagLength || 3,

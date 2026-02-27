@@ -8,7 +8,7 @@
 {{{ if (./parent && !hideParent) }}}
 <!-- IMPORT partials/topic/post-parent.tpl -->
 {{{ end }}}
-<!-- DEBUG: authorized value is: {posts.authorized} -->
+<!-- DEBUG: authorized={posts.authorized}, hasDisallowedContent={posts.hasDisallowedContent}, matchedDisallowedRule={posts.matchedDisallowedRule} -->
 <div class="d-flex align-items-start gap-3 post-container-parent">
 	<div class="bg-body d-none d-sm-block rounded-circle" style="outline: 2px solid var(--bs-body-bg);">
 		{{{ if (posts.anonymous && !posts.authorized) }}}
