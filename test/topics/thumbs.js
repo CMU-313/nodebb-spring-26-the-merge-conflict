@@ -293,7 +293,7 @@ describe('Topic thumbs', () => {
 		it('should fail if file is not image', async () => {
 			meta.config.allowTopicsThumbnail = 1;
 
-			const { response, body } = await helpers.uploadFile(`${nconf.get('url')}/api/v3/topics/1/thumbs`, path.join(__dirname, '../files/503.html'), {}, adminJar, adminCSRF);
+			const { response, body } = await helpers.uploadFile(`${nconf.get('url')}/api/v3/topics/1/thumbs`, path.join(__dirname, '../files/1.css'), {}, adminJar, adminCSRF);
 			assert.strictEqual(response.statusCode, 500);
 			assert(body && body.status);
 			assert.strictEqual(body.status.message, 'Invalid File');
