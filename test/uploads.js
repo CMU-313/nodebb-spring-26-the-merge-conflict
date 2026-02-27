@@ -349,8 +349,10 @@ describe('Upload Controllers', () => {
 			assert.equal(response.statusCode, 200);
 			assert(Array.isArray(body));
 			assert.equal(body[0].url, `${nconf.get('relative_path')}/assets/uploads/category/category-1.svg`);
-			const svgContents = await fs.readFile(path.join(__dirname, '../test/uploads/category/category-1.svg'), 'utf-8');
-			assert.strictEqual(svgContents.includes('<script>'), false);
+			const uploadedSvgUrl = new URL(body[0].url, nconf.get('url')).toString();
+			const { response: svgResponse, body: svgBody } = await request.get(uploadedSvgUrl);
+			assert.strictEqual(svgResponse.statusCode, 200);
+			assert.strictEqual(String(svgBody).includes('<script>'), false);
 		});
 
 		it('should upload default avatar', async () => {
@@ -427,6 +429,16 @@ describe('Upload Controllers', () => {
 		});
 
 		describe('ACP uploads screen', () => {
+			before(async () => {
+				await fs.rm(path.join(nconf.get('upload_path'), 'myfolder'), { recursive: true, force: true });
+				await fs.rm(path.join(nconf.get('upload_path'), 'hisfolder'), { recursive: true, force: true });
+			});
+
+			beforeEach(async () => {
+				csrf_token = await helpers.getCsrfToken(jar);
+				regular_csrf_token = await helpers.getCsrfToken(regularJar);
+			});
+
 			it('should create a folder', async () => {
 				const { response } = await helpers.createFolder('', 'myfolder', jar, csrf_token);
 				assert.strictEqual(response.statusCode, 200);

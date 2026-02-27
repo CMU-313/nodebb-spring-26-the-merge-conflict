@@ -16,6 +16,7 @@ require('./data')(Posts);
 require('./create')(Posts);
 require('./delete')(Posts);
 require('./edit')(Posts);
+require('./checker')(Posts);
 require('./parse')(Posts);
 require('./user')(Posts);
 require('./topics')(Posts);

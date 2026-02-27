@@ -661,6 +661,46 @@ define('composer', [
 		}, 20);
 	}
 
+	function getMatchedDisallowedRule(content) {
+		const rules = parseDisallowedRules(config.disallowedWebsites);
+		if (!rules.length) {
+			return '';
+		}
+
+		const normalizedContent = String(content || '').toLowerCase();
+		return rules.find(rule => normalizedContent.includes(rule)) || '';
+	}
+
+	function parseDisallowedRules(rules) {
+		if (Array.isArray(rules)) {
+			return normalizeDisallowedRules(rules);
+		}
+
+		const rawRules = String(rules || '').trim();
+		if (!rawRules) {
+			return [];
+		}
+
+		if (rawRules.startsWith('[') && rawRules.endsWith(']')) {
+			try {
+				const parsed = JSON.parse(rawRules);
+				if (Array.isArray(parsed)) {
+					return normalizeDisallowedRules(parsed);
+				}
+			} catch (err) {
+				// fallback to delimited parse
+			}
+		}
+
+		return normalizeDisallowedRules(rawRules.split(/[\n,]/));
+	}
+
+	function normalizeDisallowedRules(rules) {
+		return rules
+			.map(rule => String(rule || '').trim().replace(/^['"]|['"]$/g, '').toLowerCase())
+			.filter(Boolean);
+	}
+
 	async function post(post_uuid) {
 		var postData = composer.posts[post_uuid];
 		var postContainer = $('.composer[data-uuid="' + post_uuid + '"]');
@@ -699,6 +739,8 @@ define('composer', [
 		if (payload.error) {
 			return composerAlert(post_uuid, payload.error);
 		}
+
+		const matchedDisallowedRule = getMatchedDisallowedRule(bodyEl.val());
 
 		if (uploads.inProgress[post_uuid] && uploads.inProgress[post_uuid].length) {
 			return composerAlert(post_uuid, '[[error:still-uploading]]');

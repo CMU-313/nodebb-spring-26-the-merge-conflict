@@ -42,6 +42,12 @@ module.exports = function (Posts) {
 		if (data.anonymous) {
 			postData.anonymous = data.anonymous;
 		}
+		if (typeof data.hasDisallowedContent === 'boolean') {
+			postData.hasDisallowedContent = data.hasDisallowedContent ? 1 : 0;
+		}
+		if (typeof data.matchedDisallowedRule === 'string') {
+			postData.matchedDisallowedRule = data.matchedDisallowedRule;
+		}
 		if (data.authorized) {
 			postData.authorized = data.authorized;
 		}

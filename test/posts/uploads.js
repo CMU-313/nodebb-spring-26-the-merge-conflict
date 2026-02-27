@@ -281,13 +281,18 @@ describe('upload methods', () => {
 		});
 
 		it('should not delete files if they are not in `uploads/files/` (path traversal)', async () => {
+			const externalFilePath = path.resolve(nconf.get('upload_path'), '../files/503.html');
+			await fs.promises.mkdir(path.dirname(externalFilePath), { recursive: true });
+			await fs.promises.writeFile(externalFilePath, '<html></html>');
+
 			const tmpFilePath = path.resolve(os.tmpdir(), `derp${utils.generateUUID()}`);
 			await fs.promises.appendFile(tmpFilePath, '');
 			await posts.uploads.deleteFromDisk(['../files/503.html', tmpFilePath]);
 
-			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), '../files/503.html')), true);
+			assert.strictEqual(await file.exists(externalFilePath), true);
 			assert.strictEqual(await file.exists(tmpFilePath), true);
 
+			await file.delete(externalFilePath);
 			await file.delete(tmpFilePath);
 		});
 

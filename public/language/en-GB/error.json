@@ -213,6 +213,7 @@
 	"not-enough-reputation-to-upvote": "You need %1 reputation to upvote",
 	"not-enough-reputation-to-downvote": "You need %1 reputation to downvote",
 	"not-enough-reputation-to-post-links": "You need %1 reputation to post links",
+	"link-domain-not-allowed": "Blocked: this website is not allowed",
 	"not-enough-reputation-to-flag": "You need %1 reputation to flag this post",
 	"not-enough-reputation-min-rep-website": "You need %1 reputation to add a website",
 	"not-enough-reputation-min-rep-aboutme": "You need %1 reputation to add an about me",

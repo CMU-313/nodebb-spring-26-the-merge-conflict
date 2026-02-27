@@ -86,30 +86,100 @@ module.exports = function (Posts) {
 		postData.data.content = result.postData.content;
 	}
 
-	Posts.canUserPostContentWithLinks = async function (uid, content) {
+	Posts.canUserPostContentWithLinksDetailed = async function (uid, content) {
 		if (!content) {
-			return true;
+			return {
+				canPost: true,
+				reason: '',
+			};
 		}
-		const [reputation, isPrivileged] = await Promise.all([
+
+		const [parsed, reputation, isPrivileged] = await Promise.all([
+			plugins.hooks.fire('filter:parse.raw', String(content)),
 			user.getUserField(uid, 'reputation'),
 			user.isPrivileged(uid),
 		]);
 
-		if (!isPrivileged && reputation < meta.config['min:rep:post-links']) {
-			const parsed = await plugins.hooks.fire('filter:parse.raw', String(content));
-			const matches = parsed.matchAll(/<a[^>]*href="([^"]+)"[^>]*>/g);
-			let external = 0;
-			for (const [, href] of matches) {
-				const internal = utils.isInternalURI(new URL(href, nconf.get('url')), new URL(nconf.get('url')), nconf.get('relative_path'));
-				if (!internal) {
-					external += 1;
-				}
+		const externalHosts = [];
+		const hrefs = [
+			...extractAnchorHrefs(parsed),
+			...extractRawUrls(content),
+		];
+		for (const href of hrefs) {
+			const target = new URL(href, nconf.get('url'));
+			const internal = utils.isInternalURI(target, new URL(nconf.get('url')), nconf.get('relative_path'));
+			if (!internal) {
+				externalHosts.push(target.hostname.toLowerCase());
 			}
-
-			return external === 0;
 		}
-		return true;
+
+		if (!externalHosts.length) {
+			return {
+				canPost: true,
+				reason: '',
+			};
+		}
+
+		const disallowedDomains = parseConfiguredDomains(meta.config.disallowedWebsites);
+
+		if (disallowedDomains.length && externalHosts.some(host => domainMatchesList(host, disallowedDomains))) {
+			return {
+				canPost: false,
+				reason: 'disallowed-domain',
+			};
+		}
+
+		if (!isPrivileged && reputation < meta.config['min:rep:post-links']) {
+			return {
+				canPost: false,
+				reason: 'not-enough-reputation',
+			};
+		}
+		return {
+			canPost: true,
+			reason: '',
+		};
 	};
+
+	Posts.canUserPostContentWithLinks = async function (uid, content) {
+		const result = await Posts.canUserPostContentWithLinksDetailed(uid, content);
+		return result.canPost;
+	};
+
+	function parseConfiguredDomains(list) {
+		return String(list || '')
+			.split(',')
+			.map(domain => domain.trim().toLowerCase())
+			.filter(Boolean);
+	}
+
+	function extractAnchorHrefs(html) {
+		const hrefs = [];
+		const matches = String(html || '').matchAll(/<a[^>]*href="([^"]+)"[^>]*>/g);
+		for (const [, href] of matches) {
+			hrefs.push(href);
+		}
+		return hrefs;
+	}
+
+	function extractRawUrls(rawContent) {
+		const urls = [];
+		const matches = String(rawContent || '').matchAll(/https?:\/\/[^\s<>"]+/gi);
+		for (const [match] of matches) {
+			urls.push(match.replace(/[),.;!?]+$/g, ''));
+		}
+		return urls;
+	}
+
+	function domainMatchesList(host, list) {
+		return list.some((domain) => {
+			if (domain.startsWith('.')) {
+				const suffix = domain.slice(1);
+				return host === suffix || host.endsWith(domain);
+			}
+			return host === domain || host.endsWith(`.${domain}`);
+		});
+	}
 
 	Posts.shouldQueue = async function (uid, data) {
 		let shouldQueue = meta.config.postQueue;
@@ -305,6 +375,10 @@ module.exports = function (Posts) {
 		}
 		const result = await plugins.hooks.fire('filter:post-queue:submitFromQueue', { data: data });
 		data = result.data;
+		const linkCheck = await Posts.canUserPostContentWithLinksDetailed(data.uid, data.data && data.data.content);
+		if (!linkCheck.canPost && linkCheck.reason === 'disallowed-domain') {
+			throw new Error('[[error:link-domain-not-allowed]]');
+		}
 		if (data.type === 'topic') {
 			const result = await createTopic(data.data);
 			data.pid = result.postData.pid;

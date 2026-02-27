@@ -1031,6 +1031,46 @@ describe('Post\'s', () => {
 			);
 		});
 
+		it('should reject approving queued post when it contains disallowed external link', async () => {
+			const oldDisallowedWebsites = meta.config.disallowedWebsites;
+			meta.config.disallowedWebsites = '.com';
+
+			const queued = await apiTopics.create(
+				{ uid: uid },
+				{ title: 'queued blocked topic', content: 'See https://notallowed.com', cid: cid }
+			);
+
+			await assert.rejects(
+				apiPosts.acceptQueuedPost({ uid: globalModUid }, { id: queued.id }),
+				{ message: '[[error:link-domain-not-allowed]]' },
+			);
+
+			const queuedPost = await posts.getFromQueue(queued.id);
+			assert.ok(queuedPost);
+
+			meta.config.disallowedWebsites = oldDisallowedWebsites;
+		});
+
+		it('should reject approving queued reply when it contains disallowed external link', async () => {
+			const oldDisallowedWebsites = meta.config.disallowedWebsites;
+			meta.config.disallowedWebsites = '.com';
+
+			const queued = await apiTopics.reply(
+				{ uid: uid },
+				{ tid: topicData.tid, content: 'reply with blocked link https://notallowed.com' }
+			);
+
+			await assert.rejects(
+				apiPosts.acceptQueuedPost({ uid: globalModUid }, { id: queued.id }),
+				{ message: '[[error:link-domain-not-allowed]]' },
+			);
+
+			const queuedPost = await posts.getFromQueue(queued.id);
+			assert.ok(queuedPost);
+
+			meta.config.disallowedWebsites = oldDisallowedWebsites;
+		});
+
 		it('should accept queued posts and submit', async () => {
 			const ids = await db.getSortedSetRange('post:queue', 0, -1);
 			await apiPosts.acceptQueuedPost({ uid: globalModUid }, { id: ids[0] });
@@ -1069,6 +1109,88 @@ describe('Post\'s', () => {
 			assert.strictEqual(postData.length, 1);
 			assert.strictEqual(postData[0].data.content, 'the moved queued post');
 			assert.strictEqual(postData[0].data.tid, result2.tid);
+		});
+	});
+
+	describe('post link domain restrictions', () => {
+		let uid;
+		let oldMinRep;
+		let oldDisallowedWebsites;
+
+		before(async () => {
+			uid = await user.create({ username: 'linkdomainuser' });
+			oldMinRep = meta.config['min:rep:post-links'];
+			oldDisallowedWebsites = meta.config.disallowedWebsites;
+			meta.config['min:rep:post-links'] = 0;
+		});
+
+		after(() => {
+			meta.config['min:rep:post-links'] = oldMinRep;
+			meta.config.disallowedWebsites = oldDisallowedWebsites;
+		});
+
+		it('should allow posting links when disallowed list is empty', async () => {
+			meta.config.disallowedWebsites = '';
+
+			const canPost = await posts.canUserPostContentWithLinks(
+				uid,
+				'See [Any Link](https://notallowed.com) and [Another Link](https://example.org/docs).',
+			);
+
+			assert.strictEqual(canPost, true);
+		});
+
+		it('should block posting links when disallowed list contains the external link domain', async () => {
+			meta.config.disallowedWebsites = '.com,bad-site.org';
+
+			const canPost = await posts.canUserPostContentWithLinks(
+				uid,
+				'See [Blocked](https://foo.com/path) and [Also Blocked](https://bad-site.org).',
+			);
+
+			assert.strictEqual(canPost, false);
+		});
+
+		it('should reject topic creation when content contains a disallowed external link', async () => {
+			meta.config.disallowedWebsites = '.com';
+
+			await assert.rejects(
+				apiTopics.create(
+					{ uid: uid },
+					{ title: 'blocked links topic', content: 'See https://notallowed.com', cid: cid }
+				),
+				{ message: '[[error:link-domain-not-allowed]]' }
+			);
+		});
+
+		it('should reject topic creation with reputation error when user has insufficient reputation', async () => {
+			meta.config.disallowedWebsites = '';
+			meta.config['min:rep:post-links'] = 100;
+
+			await assert.rejects(
+				apiTopics.create(
+					{ uid: uid },
+					{ title: 'rep restricted links topic', content: 'See https://example.org/docs', cid: cid }
+				),
+				{ message: '[[error:not-enough-reputation-to-post-links, 100]]' }
+			);
+
+			meta.config['min:rep:post-links'] = 0;
+		});
+
+		it('should allow topic creation when content does not include disallowed external links', async () => {
+			meta.config.disallowedWebsites = 'bad-site.org';
+
+			const result = await apiTopics.create(
+				{ uid: uid },
+				{
+					title: 'allowed links topic',
+					content: 'See https://example.org/docs and https://www.cmu.edu',
+					cid: cid,
+				}
+			);
+
+			assert.strictEqual(result.title, 'allowed links topic');
 		});
 	});
 

@@ -388,22 +388,18 @@ describe('meta', () => {
 			});
 		});
 
-		describe('allowed and disallowed websites (post link domains)', () => {
-			it('should include allowedWebsites and disallowedWebsites in config with default empty string', async () => {
-				const data = await meta.configs.getFields(['allowedWebsites', 'disallowedWebsites']);
-				assert.strictEqual(typeof data.allowedWebsites, 'string');
+		describe('disallowed websites (post link domains)', () => {
+			it('should include disallowedWebsites in config with default empty string', async () => {
+				const data = await meta.configs.getFields(['disallowedWebsites']);
 				assert.strictEqual(typeof data.disallowedWebsites, 'string');
-				assert.strictEqual(data.allowedWebsites, '');
 				assert.strictEqual(data.disallowedWebsites, '');
 			});
 
-			it('should set and get allowedWebsites and disallowedWebsites', async () => {
+			it('should set and get disallowedWebsites', async () => {
 				await meta.configs.setMultiple({
-					allowedWebsites: '.edu,.cmu,example.org',
 					disallowedWebsites: '.com,bad-site.org',
 				});
-				const data = await meta.configs.getFields(['allowedWebsites', 'disallowedWebsites']);
-				assert.strictEqual(data.allowedWebsites, '.edu,.cmu,example.org');
+				const data = await meta.configs.getFields(['disallowedWebsites']);
 				assert.strictEqual(data.disallowedWebsites, '.com,bad-site.org');
 			});
 		});

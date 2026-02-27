@@ -157,6 +157,11 @@ PostObject:
       type: number
     anonymous:
       type: number
+    hasDisallowedContent:
+      type: number
+    matchedDisallowedRule:
+      type: string
+      nullable: true
     showPrivateIndicator:
       type: number
 PostDataObject:
@@ -203,6 +208,8 @@ PostDataObject:
         deleterUid:
           type: number
         edited:
+          type: number
+        hasDisallowedContent:
           type: number
         timestampISO:
           type: string
