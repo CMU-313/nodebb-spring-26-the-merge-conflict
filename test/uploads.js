@@ -349,7 +349,7 @@ describe('Upload Controllers', () => {
 			assert.equal(response.statusCode, 200);
 			assert(Array.isArray(body));
 			assert.equal(body[0].url, `${nconf.get('relative_path')}/assets/uploads/category/category-1.svg`);
-			const svgContents = await fs.readFile(path.join(__dirname, '../test/uploads/category/category-1.svg'), 'utf-8');
+			const svgContents = await fs.readFile(path.join(__dirname, '../public/uploads/category/category-1.svg'), 'utf-8');
 			assert.strictEqual(svgContents.includes('<script>'), false);
 		});
 
