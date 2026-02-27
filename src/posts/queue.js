@@ -114,14 +114,9 @@ module.exports = function (Posts) {
 			return true;
 		}
 
-		const allowedDomains = parseConfiguredDomains(meta.config.allowedWebsites);
 		const disallowedDomains = parseConfiguredDomains(meta.config.disallowedWebsites);
 
 		if (disallowedDomains.length && externalHosts.some(host => domainMatchesList(host, disallowedDomains))) {
-			return false;
-		}
-
-		if (allowedDomains.length && externalHosts.some(host => !domainMatchesList(host, allowedDomains))) {
 			return false;
 		}
 

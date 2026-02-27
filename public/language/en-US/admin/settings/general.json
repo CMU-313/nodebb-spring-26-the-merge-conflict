@@ -60,9 +60,6 @@
 	"default-language-help": "The default language determines the language settings for all users who are visiting your forum. <br />Individual users can override the default language on their account settings page.",
 	"post-sharing": "Post Sharing",
 	"info-plugins-additional": "Plugins can add additional networks for sharing posts.",
-	"allowed-websites": "Allowed Websites",
-	"allowed-websites.list": "Domains or keywords to specifically allow in post links",
-	"allowed-websites.help": "One per line or comma-separated. e.g. .cmu, .edu",
 	"disallowed-websites": "Disallowed Websites",
 	"disallowed-websites.list": "Domains or keywords to disallow in post links",
 	"disallowed-websites.help": "One per line or comma-separated. e.g. .com, bad-site.org"
