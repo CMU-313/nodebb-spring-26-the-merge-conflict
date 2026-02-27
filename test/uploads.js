@@ -427,6 +427,16 @@ describe('Upload Controllers', () => {
 		});
 
 		describe('ACP uploads screen', () => {
+			before(async () => {
+				await fs.rm(path.join(nconf.get('upload_path'), 'myfolder'), { recursive: true, force: true });
+				await fs.rm(path.join(nconf.get('upload_path'), 'hisfolder'), { recursive: true, force: true });
+			});
+
+			beforeEach(async () => {
+				csrf_token = await helpers.getCsrfToken(jar);
+				regular_csrf_token = await helpers.getCsrfToken(regularJar);
+			});
+
 			it('should create a folder', async () => {
 				const { response } = await helpers.createFolder('', 'myfolder', jar, csrf_token);
 				assert.strictEqual(response.statusCode, 200);
