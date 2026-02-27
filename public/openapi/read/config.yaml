@@ -45,6 +45,8 @@ get:
                 type: number
               maximumPostLength:
                 type: number
+              disallowedWebsites:
+                type: string
               minimumTagsPerTopic:
                 type: number
               maximumTagsPerTopic:

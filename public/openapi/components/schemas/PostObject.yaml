@@ -157,6 +157,8 @@ PostObject:
       type: number
     anonymous:
       type: number
+    hasDisallowedContent:
+      type: number
     showPrivateIndicator:
       type: number
 PostDataObject:
@@ -193,6 +195,8 @@ PostDataObject:
         announces:
           type: number
         anonymous:
+          type: number
+        hasDisallowedContent:
           type: number
         authorized:
           type: boolean
