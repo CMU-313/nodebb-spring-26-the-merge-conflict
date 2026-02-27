@@ -86,9 +86,12 @@ module.exports = function (Posts) {
 		postData.data.content = result.postData.content;
 	}
 
-	Posts.canUserPostContentWithLinks = async function (uid, content) {
+	Posts.canUserPostContentWithLinksDetailed = async function (uid, content) {
 		if (!content) {
-			return true;
+			return {
+				canPost: true,
+				reason: '',
+			};
 		}
 
 		const [parsed, reputation, isPrivileged] = await Promise.all([
@@ -111,19 +114,36 @@ module.exports = function (Posts) {
 		}
 
 		if (!externalHosts.length) {
-			return true;
+			return {
+				canPost: true,
+				reason: '',
+			};
 		}
 
 		const disallowedDomains = parseConfiguredDomains(meta.config.disallowedWebsites);
 
 		if (disallowedDomains.length && externalHosts.some(host => domainMatchesList(host, disallowedDomains))) {
-			return false;
+			return {
+				canPost: false,
+				reason: 'disallowed-domain',
+			};
 		}
 
 		if (!isPrivileged && reputation < meta.config['min:rep:post-links']) {
-			return false;
+			return {
+				canPost: false,
+				reason: 'not-enough-reputation',
+			};
 		}
-		return true;
+		return {
+			canPost: true,
+			reason: '',
+		};
+	};
+
+	Posts.canUserPostContentWithLinks = async function (uid, content) {
+		const result = await Posts.canUserPostContentWithLinksDetailed(uid, content);
+		return result.canPost;
 	};
 
 	function parseConfiguredDomains(list) {
@@ -355,6 +375,10 @@ module.exports = function (Posts) {
 		}
 		const result = await plugins.hooks.fire('filter:post-queue:submitFromQueue', { data: data });
 		data = result.data;
+		const linkCheck = await Posts.canUserPostContentWithLinksDetailed(data.uid, data.data && data.data.content);
+		if (!linkCheck.canPost && linkCheck.reason === 'disallowed-domain') {
+			throw new Error('[[error:link-domain-not-allowed]]');
+		}
 		if (data.type === 'topic') {
 			const result = await createTopic(data.data);
 			data.pid = result.postData.pid;

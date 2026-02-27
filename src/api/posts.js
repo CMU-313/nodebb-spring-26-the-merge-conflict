@@ -111,8 +111,14 @@ postsAPI.edit = async function (caller, data) {
 		throw new Error(`[[error:title-too-short, ${meta.config.minimumTitleLength}]]`);
 	} else if (data.title && data.title.length > meta.config.maximumTitleLength) {
 		throw new Error(`[[error:title-too-long, ${meta.config.maximumTitleLength}]]`);
-	} else if (!await posts.canUserPostContentWithLinks(caller.uid, data.content)) {
-		throw new Error(`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`);
+	} else {
+		const linkCheck = await posts.canUserPostContentWithLinksDetailed(caller.uid, data.content);
+		if (!linkCheck.canPost) {
+			if (linkCheck.reason === 'disallowed-domain') {
+				throw new Error('[[error:link-domain-not-allowed]]');
+			}
+			throw new Error(`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`);
+		}
 	}
 
 	data.uid = caller.uid;

@@ -1031,6 +1031,46 @@ describe('Post\'s', () => {
 			);
 		});
 
+		it('should reject approving queued post when it contains disallowed external link', async () => {
+			const oldDisallowedWebsites = meta.config.disallowedWebsites;
+			meta.config.disallowedWebsites = '.com';
+
+			const queued = await apiTopics.create(
+				{ uid: uid },
+				{ title: 'queued blocked topic', content: 'See https://notallowed.com', cid: cid }
+			);
+
+			await assert.rejects(
+				apiPosts.acceptQueuedPost({ uid: globalModUid }, { id: queued.id }),
+				{ message: '[[error:link-domain-not-allowed]]' },
+			);
+
+			const queuedPost = await posts.getFromQueue(queued.id);
+			assert.ok(queuedPost);
+
+			meta.config.disallowedWebsites = oldDisallowedWebsites;
+		});
+
+		it('should reject approving queued reply when it contains disallowed external link', async () => {
+			const oldDisallowedWebsites = meta.config.disallowedWebsites;
+			meta.config.disallowedWebsites = '.com';
+
+			const queued = await apiTopics.reply(
+				{ uid: uid },
+				{ tid: topicData.tid, content: 'reply with blocked link https://notallowed.com' }
+			);
+
+			await assert.rejects(
+				apiPosts.acceptQueuedPost({ uid: globalModUid }, { id: queued.id }),
+				{ message: '[[error:link-domain-not-allowed]]' },
+			);
+
+			const queuedPost = await posts.getFromQueue(queued.id);
+			assert.ok(queuedPost);
+
+			meta.config.disallowedWebsites = oldDisallowedWebsites;
+		});
+
 		it('should accept queued posts and submit', async () => {
 			const ids = await db.getSortedSetRange('post:queue', 0, -1);
 			await apiPosts.acceptQueuedPost({ uid: globalModUid }, { id: ids[0] });
@@ -1119,8 +1159,23 @@ describe('Post\'s', () => {
 					{ uid: uid },
 					{ title: 'blocked links topic', content: 'See https://notallowed.com', cid: cid }
 				),
-				{ message: '[[error:not-enough-reputation-to-post-links, 0]]' }
+				{ message: '[[error:link-domain-not-allowed]]' }
 			);
+		});
+
+		it('should reject topic creation with reputation error when user has insufficient reputation', async () => {
+			meta.config.disallowedWebsites = '';
+			meta.config['min:rep:post-links'] = 100;
+
+			await assert.rejects(
+				apiTopics.create(
+					{ uid: uid },
+					{ title: 'rep restricted links topic', content: 'See https://example.org/docs', cid: cid }
+				),
+				{ message: '[[error:not-enough-reputation-to-post-links, 100]]' }
+			);
+
+			meta.config['min:rep:post-links'] = 0;
 		});
 
 		it('should allow topic creation when content does not include disallowed external links', async () => {

@@ -112,7 +112,11 @@ module.exports = function (Topics) {
 		data.matchedDisallowedRule = checker.matchedRule;
 		if (!data.fromQueue && !isAdmin) {
 			Topics.checkContent(data.sourceContent || data.content);
-			if (!await posts.canUserPostContentWithLinks(uid, data.content)) {
+			const linkCheck = await posts.canUserPostContentWithLinksDetailed(uid, data.content);
+			if (!linkCheck.canPost) {
+				if (linkCheck.reason === 'disallowed-domain') {
+					throw new Error('[[error:link-domain-not-allowed]]');
+				}
 				throw new Error(`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`);
 			}
 		}
@@ -208,7 +212,11 @@ module.exports = function (Topics) {
 		if (!data.fromQueue && !isAdmin) {
 			await user.isReadyToPost(uid, data.cid);
 			Topics.checkContent(data.sourceContent || data.content);
-			if (!await posts.canUserPostContentWithLinks(uid, data.content)) {
+			const linkCheck = await posts.canUserPostContentWithLinksDetailed(uid, data.content);
+			if (!linkCheck.canPost) {
+				if (linkCheck.reason === 'disallowed-domain') {
+					throw new Error('[[error:link-domain-not-allowed]]');
+				}
 				throw new Error(`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`);
 			}
 		}
