@@ -1166,7 +1166,7 @@ describe('Post\'s', () => {
 				}
 			);
 
-			assert.strictEqual(result.topicData.title, 'allowed links topic');
+			assert.strictEqual(result.title, 'allowed links topic');
 		});
 	});
 

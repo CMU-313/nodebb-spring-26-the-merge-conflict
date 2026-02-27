@@ -90,26 +90,81 @@ module.exports = function (Posts) {
 		if (!content) {
 			return true;
 		}
-		const [reputation, isPrivileged] = await Promise.all([
+
+		const [parsed, reputation, isPrivileged] = await Promise.all([
+			plugins.hooks.fire('filter:parse.raw', String(content)),
 			user.getUserField(uid, 'reputation'),
 			user.isPrivileged(uid),
 		]);
 
-		if (!isPrivileged && reputation < meta.config['min:rep:post-links']) {
-			const parsed = await plugins.hooks.fire('filter:parse.raw', String(content));
-			const matches = parsed.matchAll(/<a[^>]*href="([^"]+)"[^>]*>/g);
-			let external = 0;
-			for (const [, href] of matches) {
-				const internal = utils.isInternalURI(new URL(href, nconf.get('url')), new URL(nconf.get('url')), nconf.get('relative_path'));
-				if (!internal) {
-					external += 1;
-				}
+		const externalHosts = [];
+		const hrefs = [
+			...extractAnchorHrefs(parsed),
+			...extractRawUrls(content),
+		];
+		for (const href of hrefs) {
+			const target = new URL(href, nconf.get('url'));
+			const internal = utils.isInternalURI(target, new URL(nconf.get('url')), nconf.get('relative_path'));
+			if (!internal) {
+				externalHosts.push(target.hostname.toLowerCase());
 			}
+		}
 
-			return external === 0;
+		if (!externalHosts.length) {
+			return true;
+		}
+
+		const allowedDomains = parseConfiguredDomains(meta.config.allowedWebsites);
+		const disallowedDomains = parseConfiguredDomains(meta.config.disallowedWebsites);
+
+		if (disallowedDomains.length && externalHosts.some(host => domainMatchesList(host, disallowedDomains))) {
+			return false;
+		}
+
+		if (allowedDomains.length && externalHosts.some(host => !domainMatchesList(host, allowedDomains))) {
+			return false;
+		}
+
+		if (!isPrivileged && reputation < meta.config['min:rep:post-links']) {
+			return false;
 		}
 		return true;
 	};
+
+	function parseConfiguredDomains(list) {
+		return String(list || '')
+			.split(',')
+			.map(domain => domain.trim().toLowerCase())
+			.filter(Boolean);
+	}
+
+	function extractAnchorHrefs(html) {
+		const hrefs = [];
+		const matches = String(html || '').matchAll(/<a[^>]*href="([^"]+)"[^>]*>/g);
+		for (const [, href] of matches) {
+			hrefs.push(href);
+		}
+		return hrefs;
+	}
+
+	function extractRawUrls(rawContent) {
+		const urls = [];
+		const matches = String(rawContent || '').matchAll(/https?:\/\/[^\s<>"]+/gi);
+		for (const [match] of matches) {
+			urls.push(match.replace(/[),.;!?]+$/g, ''));
+		}
+		return urls;
+	}
+
+	function domainMatchesList(host, list) {
+		return list.some((domain) => {
+			if (domain.startsWith('.')) {
+				const suffix = domain.slice(1);
+				return host === suffix || host.endsWith(domain);
+			}
+			return host === domain || host.endsWith(`.${domain}`);
+		});
+	}
 
 	Posts.shouldQueue = async function (uid, data) {
 		let shouldQueue = meta.config.postQueue;
