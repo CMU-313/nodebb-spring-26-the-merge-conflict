@@ -349,8 +349,10 @@ describe('Upload Controllers', () => {
 			assert.equal(response.statusCode, 200);
 			assert(Array.isArray(body));
 			assert.equal(body[0].url, `${nconf.get('relative_path')}/assets/uploads/category/category-1.svg`);
-			const svgContents = await fs.readFile(path.join(__dirname, '../public/uploads/category/category-1.svg'), 'utf-8');
-			assert.strictEqual(svgContents.includes('<script>'), false);
+			const uploadedSvgUrl = body[0].url.startsWith('http') ? body[0].url : `${nconf.get('url')}${body[0].url}`;
+			const { response: svgResponse, body: svgBody } = await request.get(uploadedSvgUrl);
+			assert.strictEqual(svgResponse.statusCode, 200);
+			assert.strictEqual(String(svgBody).includes('<script>'), false);
 		});
 
 		it('should upload default avatar', async () => {
