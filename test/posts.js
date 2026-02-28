@@ -1192,6 +1192,28 @@ describe('Post\'s', () => {
 
 			assert.strictEqual(result.title, 'allowed links topic');
 		});
+
+		it('detailed check should report disallowed-domain reason for blocked hosts', async () => {
+			meta.config.disallowedWebsites = '.example.com';
+			const result = await posts.canUserPostContentWithLinksDetailed(
+				uid,
+				'Check https://sub.example.com/page'
+			);
+			assert.strictEqual(result.canPost, false);
+			assert.strictEqual(result.reason, 'disallowed-domain');
+		});
+
+		it('detailed check should report not-enough-reputation when rep is too low', async () => {
+			meta.config.disallowedWebsites = '';
+			meta.config['min:rep:post-links'] = 50;
+			const result = await posts.canUserPostContentWithLinksDetailed(
+				uid,
+				'Check https://gooddomain.org/page'
+			);
+			assert.strictEqual(result.canPost, false);
+			assert.strictEqual(result.reason, 'not-enough-reputation');
+			meta.config['min:rep:post-links'] = 0;
+		});
 	});
 
 	describe('post editors', () => {

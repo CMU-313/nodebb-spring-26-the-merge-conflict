@@ -30,6 +30,7 @@ Added coverage includes:
 - Pass case when disallowed list is empty.
 - Disallow list fail case.
 - Integration checks for topic creation being blocked/allowed with disallowed-only rules.
+- Detailed-output checks from `canUserPostContentWithLinksDetailed` ensuring proper `reason` codes (`disallowed-domain` and `not-enough-reputation`).
 
 # Why these tests are sufficient
 They validate disallowed-rule matching and real posting behavior. Since create/reply/edit all call the same guard function, this gives strong confidence across posting workflows.
@@ -73,3 +74,35 @@ Relevant coverage: non follower restriction checks, follower access after accept
 They cover the main acceptance cases such as private toggle, follow request control, non follower restrictions, follower access, and admin visibility and they also validate both role based access and relationship based access (follower vs non follower).
 
 
+
+# Oliver: US4 Task 1 - Setting to make profile private
+# What was implemented
+Users can now toggle a "Make Profile Private" setting in their account settings.
+The private profile setting is:
+- Displayed as a checkbox in the Privacy section of account settings
+- Saved to the database and persisted across sessions
+- Available in the user settings schema via OpenAPI
+- Defaults to false (public profile) for new users
+
+# Where we implemented it
+- Frontend UI: `vendor/nodebb-theme-harmony-2.1.35/templates/account/settings.tpl` - added checkbox toggle for private profile
+- Settings schema: `public/openapi/components/schemas/SettingsObj.yaml` - registered privateProfile boolean field
+- Backend logic: `src/user/settings.js` - added privateProfile setting loading/saving with default value handling
+- Tests: `test/private_profiles.js` - comprehensive test suite for the feature
+
+# How to use
+1. Log in as a regular user and navigate to Account Settings
+2. Scroll to the Privacy section
+3. Check the "Make Profile Private" checkbox
+4. Click "Save Changes" to apply the setting
+5. Uncheck the box and save again to make the profile public
+
+# Automated tests
+Tests are in: `test/private_profiles.js`
+Added coverage includes:
+- Default state verification: confirms new users have privateProfile set to false
+- Setting persistence: verifies the setting can be saved as true and retrieved correctly
+- Setting revocation: confirms the setting can be toggled back to false
+
+# Why these tests are sufficient
+They validate the core functionality of the setting - that it defaults correctly, can be enabled/disabled, and persists across retrievals. Since the setting integrates with the existing user settings infrastructure (saveSettings/getSettings), testing these core operations provides confidence that the feature works end-to-end. The pagination settings are included in tests to match real-world usage where settings are saved together.
