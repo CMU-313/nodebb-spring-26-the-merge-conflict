@@ -393,6 +393,8 @@ UserObjectFull:
           type: number
         following:
           type: number
+        followRequests:
+          type: number
         groups:
           type: number
         posts:

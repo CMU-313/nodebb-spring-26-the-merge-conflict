@@ -279,6 +279,9 @@ async function getCounts(userData, callerUID) {
 		promises.categoriesWatched = user.getWatchedCategories(uid);
 		promises.tagsWatched = db.sortedSetCard(`uid:${uid}:followed_tags`);
 		promises.blocks = user.getUserField(userData.uid, 'blocksCount');
+		if (userData.isSelf) {
+			promises.followRequests = user.getIncomingFollowRequestCount(uid);
+		}
 	}
 	const counts = await utils.promiseParallel(promises);
 	counts.posts = isRemote ? userData.postcount : counts.posts;
@@ -286,6 +289,7 @@ async function getCounts(userData, callerUID) {
 	counts.groups = userData.groups.length;
 	counts.following = userData.followingCount;
 	counts.followers = userData.followerCount;
+	counts.followRequests = counts.followRequests || 0;
 	userData.blocksCount = counts.blocks || 0; // for backwards compatibility, remove in 1.16.0
 	userData.counts = counts;
 }

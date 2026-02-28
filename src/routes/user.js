@@ -23,6 +23,7 @@ module.exports = function (app, name, middleware, controllers) {
 	setupPageRoute(app, `/${name}/:userslug`, middlewares, controllers.accounts.profile.get);
 	setupPageRoute(app, `/${name}/:userslug/following`, middlewares, controllers.accounts.follow.getFollowing);
 	setupPageRoute(app, `/${name}/:userslug/followers`, middlewares, controllers.accounts.follow.getFollowers);
+	setupPageRoute(app, `/${name}/:userslug/follow-requests`, accountMiddlewares, controllers.accounts.follow.getFollowRequests);
 
 	setupPageRoute(app, `/${name}/:userslug/posts`, middlewares, controllers.accounts.posts.getPosts);
 	setupPageRoute(app, `/${name}/:userslug/topics`, middlewares, controllers.accounts.posts.getTopics);

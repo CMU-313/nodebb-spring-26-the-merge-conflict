@@ -47,6 +47,13 @@
 			<div class="flex-grow-1">[[user:following]]</div>
 			<span class="flex-shrink-0 text-xs" title="{counts.following}">{humanReadableNumber(counts.following)}</span>
 		</a>
+		{{{ if isSelf }}}
+		<a href="{config.relative_path}/user/{userslug}/follow-requests" class="btn btn-ghost btn-sm text-start ff-secondary fw-semibold d-flex gap-2 align-items-center
+			{{{ if template.account/follow-requests }}}active{{{ end }}}">
+			<div class="flex-grow-1">[[user:incoming-follow-requests]]</div>
+			<span class="flex-shrink-0 text-xs" title="{counts.followRequests}">{humanReadableNumber(counts.followRequests)}</span>
+		</a>
+		{{{ end }}}
 		{{{ end }}}
 
 		{{{ if canEdit }}}

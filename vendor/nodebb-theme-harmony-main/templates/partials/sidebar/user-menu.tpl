@@ -68,6 +68,11 @@
 			<i class="fa fa-fw fa-list-alt text-secondary"></i> <span>[[pages:post-queue]]</span>
 		</a>
 	</li>
+	<li>
+		<a class="dropdown-item rounded-1 d-flex align-items-center gap-2" href="{relative_path}/user/{user.userslug}/follow-requests" role="menuitem">
+			<i class="fa fa-fw fa-user-plus text-secondary"></i> <span>[[user:incoming-follow-requests]]</span>
+		</a>
+	</li>
 	{{{ if registrationQueueEnabled }}}
 	<li>
 		<a class="dropdown-item rounded-1 d-flex align-items-center gap-2" href="{relative_path}/registration-queue" role="menuitem">
@@ -88,6 +93,11 @@
 		</a>
 	</li>
 	{{{ end }}}
+	<li>
+		<a class="dropdown-item rounded-1 d-flex align-items-center gap-2" href="{relative_path}/user/{user.userslug}/follow-requests" role="menuitem">
+			<i class="fa fa-fw fa-user-plus text-secondary"></i> <span>[[user:incoming-follow-requests]]</span>
+		</a>
+	</li>
 	{{{ end }}}
 
 	<li role="presentation" class="dropdown-divider"></li>
