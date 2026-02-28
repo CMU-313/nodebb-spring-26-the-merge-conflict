@@ -741,6 +741,9 @@ define('composer', [
 		}
 
 		const matchedDisallowedRule = getMatchedDisallowedRule(bodyEl.val());
+		if (matchedDisallowedRule) {
+			return composerAlert(post_uuid, 'Disallowed content detected: ' + matchedDisallowedRule);
+		}
 
 		if (uploads.inProgress[post_uuid] && uploads.inProgress[post_uuid].length) {
 			return composerAlert(post_uuid, '[[error:still-uploading]]');
