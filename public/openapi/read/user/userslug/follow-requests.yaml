@@ -1,0 +1,80 @@
+get:
+  tags:
+    - users
+  summary: Get incoming follow requests
+  parameters:
+    - name: userslug
+      in: path
+      required: true
+      schema:
+        type: string
+      example: admin
+    - name: page
+      in: query
+      schema:
+        type: number
+      example: ''
+  responses:
+    "200":
+      description: ""
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: ../../../components/schemas/UserObject.yaml#/UserObjectFull
+              - type: object
+                properties:
+                  title:
+                    type: string
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        uid:
+                          type: number
+                          description: A user identifier
+                        username:
+                          type: string
+                          description: A friendly name for a given user account
+                        userslug:
+                          type: string
+                          description: An URL-safe variant of the username
+                        picture:
+                          nullable: true
+                          type: string
+                        status:
+                          type: string
+                        postcount:
+                          type: number
+                        reputation:
+                          type: number
+                        email:confirmed:
+                          type: number
+                        lastonline:
+                          type: number
+                        flags:
+                          nullable: true
+                        banned:
+                          type: number
+                        banned:expire:
+                          type: number
+                        joindate:
+                          type: number
+                        icon:text:
+                          type: string
+                        icon:bgColor:
+                          type: string
+                        joindateISO:
+                          type: string
+                        lastonlineISO:
+                          type: string
+                        banned_until:
+                          type: number
+                        banned_until_readable:
+                          type: string
+                        administrator:
+                          type: boolean
+              - $ref: ../../../components/schemas/Pagination.yaml#/Pagination
+              - $ref: ../../../components/schemas/Breadcrumbs.yaml#/Breadcrumbs
+              - $ref: ../../../components/schemas/CommonProps.yaml#/CommonProps
