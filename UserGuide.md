@@ -30,6 +30,7 @@ Added coverage includes:
 - Pass case when disallowed list is empty.
 - Disallow list fail case.
 - Integration checks for topic creation being blocked/allowed with disallowed-only rules.
+- Detailed-output checks from `canUserPostContentWithLinksDetailed` ensuring proper `reason` codes (`disallowed-domain` and `not-enough-reputation`).
 
 # Why these tests are sufficient
 They validate disallowed-rule matching and real posting behavior. Since create/reply/edit all call the same guard function, this gives strong confidence across posting workflows.
