@@ -30,6 +30,28 @@ get:
                     type: array
                     items:
                       type: object
+                      required:
+                        - uid
+                        - username
+                        - userslug
+                        - picture
+                        - status
+                        - postcount
+                        - reputation
+                        - email:confirmed
+                        - lastonline
+                        - flags
+                        - banned
+                        - banned:expire
+                        - joindate
+                        - displayname
+                        - icon:text
+                        - icon:bgColor
+                        - joindateISO
+                        - lastonlineISO
+                        - banned_until
+                        - banned_until_readable
+                        - isLocal
                       properties:
                         uid:
                           type: number
@@ -56,11 +78,13 @@ get:
                         flags:
                           nullable: true
                         banned:
-                          type: number
+                          type: boolean
                         banned:expire:
                           type: number
                         joindate:
                           type: number
+                        displayname:
+                          type: string
                         icon:text:
                           type: string
                         icon:bgColor:
@@ -73,7 +97,7 @@ get:
                           type: number
                         banned_until_readable:
                           type: string
-                        administrator:
+                        isLocal:
                           type: boolean
               - $ref: ../../../components/schemas/Pagination.yaml#/Pagination
               - $ref: ../../../components/schemas/Breadcrumbs.yaml#/Breadcrumbs
