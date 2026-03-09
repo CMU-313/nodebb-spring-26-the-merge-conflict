@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.SERVER_ADMIN }}
           password: ${{ secrets.ADMIN_PASSWORD }}
           script: | 
-            cd ${{ secrets.merge_conflict}}
+            cd nodebb-spring-26-the-merge-conflict
             git pull origin main
             docker compose down
             docker compose -f docker-compose-redis.yml up --build -d
