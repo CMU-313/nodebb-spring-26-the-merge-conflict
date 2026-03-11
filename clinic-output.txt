@@ -1,0 +1,40 @@
+To stop data collection press: Ctrl + C
+info: configJSON
+info: {
+    "url": "http://127.0.0.1:4567",
+    "secret": "62a43bae-0294-45e3-b059-f48ef4b0b977",
+    "database": "redis",
+    "port": "4567",
+    "redis": {
+        "host": "127.0.0.1",
+        "port": 6379,
+        "password": "",
+        "database": 0
+    },
+    "test_database": {
+        "host": "127.0.0.1",
+        "port": "6379",
+        "password": "",
+        "database": "1"
+    }
+}
+info: database config redis {"database":"1","host":"127.0.0.1","password":"","port":"6379"}
+info: environment production
+
+error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16)
+
+  !
+
+  0 passing (23ms)
+  1 failing
+
+  1) "before all" hook in "{root}":
+     Error: connect ECONNREFUSED 127.0.0.1:6379
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16)
+
+
+
+process exited with exit code 1
+Analysing data
+Output file is clinic-data/7145.clinic-doctor

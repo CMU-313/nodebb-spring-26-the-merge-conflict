@@ -26,7 +26,7 @@ async function checkViewPermission(uid, pid) {
 	if (isAdmin) return true;
 
 	const postData = await mockPosts.getPostFields(pid, ['tid']);
-	const cid = await mockPosts.getTopicFields(postData.tid, 'cid');
+	const cid = await mockPosts.getTopicField(postData.tid, 'cid');
 	const isMod = await mockPrivileges.categories.isModerator(cid, uid);
 	if (isMod) return true;
 
@@ -38,7 +38,7 @@ async function checkViewPermission(uid, pid) {
 
 // 3. THE TEST SUITE
 async function runTest() {
-	console.log('--- Task 2 Verification ---');
+	console.log('--- Task 2 Verification (Burn-in) ---');
 
 	const testCases = [
 		{ uid: 1, name: 'Admin', expected: true },
@@ -47,12 +47,15 @@ async function runTest() {
 		{ uid: 5, name: 'Random Student', expected: false },
 	];
 
-	// Fixed 'no-await-in-loop' by using Promise.all
-	await Promise.all(testCases.map(async (test) => {
-		const result = await checkViewPermission(test.uid, 101);
-		const passed = result === test.expected;
-		console.log(`${passed ? '✅' : '❌'} ${test.name}: ${result ? 'Can see identity' : 'Sees Anonymous'}`);
-	}));
+	const start = Date.now();
+	while (Date.now() - start < 10000) { // Run for 10 seconds
+		await Promise.all(testCases.map(async (test) => {
+			const result = await checkViewPermission(test.uid, 101);
+			const passed = result === test.expected;
+			// console.log(`${passed ? '✅' : '❌'} ${test.name}: ${result ? 'Can see identity' : 'Sees Anonymous'}`);
+		}));
+	}
+	console.log('--- Burn-in Complete ---');
 }
 
 runTest();
