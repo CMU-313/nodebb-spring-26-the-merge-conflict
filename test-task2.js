@@ -49,10 +49,9 @@ async function runTest() {
 
 	const start = Date.now();
 	while (Date.now() - start < 10000) { // Run for 10 seconds
+		// eslint-disable-next-line no-await-in-loop
 		await Promise.all(testCases.map(async (test) => {
-			const result = await checkViewPermission(test.uid, 101);
-			const passed = result === test.expected;
-			// console.log(`${passed ? '✅' : '❌'} ${test.name}: ${result ? 'Can see identity' : 'Sees Anonymous'}`);
+			await checkViewPermission(test.uid, 101);
 		}));
 	}
 	console.log('--- Burn-in Complete ---');
