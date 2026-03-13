@@ -50,43 +50,8 @@ services:
 
 volumes:
   mongo-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/database/mongo/data
-
   redis-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/database/redis
-
   postgres-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/database/postgresql/data
-
   nodebb-build:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/build
-
   nodebb-uploads:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/public/uploads
-
   nodebb-config:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/config

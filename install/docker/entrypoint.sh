@@ -164,7 +164,13 @@ start_installation_session() {
 
   echo "Config file not found at $config"
   echo "Starting installation session"
-  exec /usr/src/app/nodebb "$nodebb_init_verb" --config="$config"
+  
+  if [ -f "/usr/src/app/setup.json" ]; then
+    echo "Using setup.json for initial configuration"
+    exec /usr/src/app/nodebb "$nodebb_init_verb" --config="$config" "$(cat /usr/src/app/setup.json)"
+  else
+    exec /usr/src/app/nodebb "$nodebb_init_verb" --config="$config"
+  fi
 }
 
 # Function for debugging and logging
