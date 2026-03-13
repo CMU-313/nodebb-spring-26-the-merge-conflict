@@ -1,12 +1,12 @@
 {
-    "bind_address": "0.0.0.0",
+    "url": "http://localhost:4567",
+    "secret": "your-secret-key",
+    "database": "redis",
+    "redis:host": "redis",
+    "redis:port": 6379,
+    "redis:database": 0,
     "admin:username": "admin",
-    "admin:password": "StrongPassword123!",
-    "admin:email": "admin@example.com",
-    "database": "mongo",
-    "mongo:host": "mongo",
-    "mongo:port": 27017,
-    "mongo:database": "nodebb",
-    "mongo:username": "nodebb",
-    "mongo:password": "nodebb"
+    "admin:password": "your_password",
+    "admin:password:confirm": "your_password",
+    "admin:email": "admin@example.com"
 }
