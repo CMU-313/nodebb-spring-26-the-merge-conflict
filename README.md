@@ -51,6 +51,26 @@ NodeBB requires the following software to be installed:
 [Please refer to platform-specific installation documentation](https://docs.nodebb.org/installing/os).
 If installing via the cloud (or using Docker), [please see cloud-based installation documentation](https://docs.nodebb.org/installing/cloud/).
 
+### Run with Docker 📦
+The project includes several `docker-compose` variants (`docker-compose.yml`,
+`docker-compose-redis.yml`, `docker-compose-pgsql.yml`) that bind local
+`.docker` directories for database and build artifacts.  Before starting
+the containers you **must** create those host folders and give them write
+permission; the helper script below takes care of that automatically.
+
+```sh
+# from the project root:
+./scripts/prepare-docker-volumes.sh
+# now bring up the services (example for Redis)
+docker compose -f docker-compose-redis.yml up --build -d
+```
+
+The script creates the directories under `.docker` and adjusts the
+permissions so you don't have to run `chmod` by hand on each path.  If you
+prefer not to bind the volumes to your filesystem you can remove the
+`driver_opts` sections from the compose files and Docker will create normal
+named volumes instead.
+
 ## Securing NodeBB
 
 It is important to ensure that your NodeBB and database servers are secured. Bear these points in mind:

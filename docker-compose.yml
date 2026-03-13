@@ -1,3 +1,4 @@
+# note: omit `version` field; modern Docker Compose ignores it
 services:
   nodebb:
     build: .
