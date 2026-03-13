@@ -6,7 +6,7 @@ set -e
 set_defaults() {
   export CONFIG_DIR="${CONFIG_DIR:-/opt/config}"
   export CONFIG="$CONFIG_DIR/config.json"
-  export NODEBB_INIT_VERB="${NODEBB_INIT_VERB:-install}"
+  export NODEBB_INIT_VERB="${NODEBB_INIT_VERB:-setup}"
   export NODEBB_BUILD_VERB="${NODEBB_BUILD_VERB:-build}"
   export START_BUILD="${START_BUILD:-${FORCE_BUILD_BEFORE_START:-false}}"
   export SETUP="${SETUP:-}"
@@ -164,7 +164,13 @@ start_installation_session() {
 
   echo "Config file not found at $config"
   echo "Starting installation session"
-  exec /usr/src/app/nodebb "$nodebb_init_verb" --config="$config"
+  
+  if [ -f "/usr/src/app/setup.json" ]; then
+    echo "Using setup.json for initial configuration"
+    exec /usr/src/app/nodebb "$nodebb_init_verb" --config="$config" "$(cat /usr/src/app/setup.json)"
+  else
+    exec /usr/src/app/nodebb "$nodebb_init_verb" --config="$config"
+  fi
 }
 
 # Function for debugging and logging

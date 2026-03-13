@@ -32,5 +32,7 @@ jobs:
           script: | 
             cd nodebb-spring-26-the-merge-conflict
             git pull origin main
+            # create host directories and fix permissions so the bind mounts work
+            ./scripts/prepare-docker-volumes.sh
             docker compose down
             docker compose -f docker-compose-redis.yml up --build -d

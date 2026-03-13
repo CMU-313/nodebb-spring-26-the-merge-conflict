@@ -51,6 +51,34 @@ NodeBB requires the following software to be installed:
 [Please refer to platform-specific installation documentation](https://docs.nodebb.org/installing/os).
 If installing via the cloud (or using Docker), [please see cloud-based installation documentation](https://docs.nodebb.org/installing/cloud/).
 
+### Run with Docker 📦
+The project includes several `docker-compose` variants (`docker-compose.yml`,
+`docker-compose-redis.yml`, `docker-compose-pgsql.yml`) that bind local
+`.docker` directories for database and build artifacts.  Before starting
+the containers you **must** create those host folders and give them write
+permission; the helper script below takes care of that automatically.
+
+```sh
+# from the project root:
+./scripts/prepare-docker-volumes.sh
+# now bring up the services (example for Redis)
+docker compose -f docker-compose-redis.yml up --build -d
+```
+
+The script creates the directories under `.docker`, adjusts permissions, and
+sets ownership of the Redis folder (and any subfolders) to `uid:gid` 999, the
+user that the official Redis image drops privileges to.  This avoids common
+"Permission denied" errors that would otherwise make the Redis container exit
+with status 0 and immediately restart.
+
+The Redis service is also configured to run as your host user (UID 1000) and
+DKP\_SKIP_FIX_PERMS is set so the official entrypoint won't bail on the
+presence of a `data` subdirectory.
+
+If you prefer not to bind the volumes to your filesystem you can remove the
+`driver_opts` sections from the compose files and Docker will create normal
+named volumes instead.
+
 ## Securing NodeBB
 
 It is important to ensure that your NodeBB and database servers are secured. Bear these points in mind:
