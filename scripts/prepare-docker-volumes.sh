@@ -22,9 +22,19 @@ for d in $DIRS; do
         echo "creating $d"
         mkdir -p "$d"
     fi
+    # ensure directory and its parents are writable by all
+    chmod o+rw "$d" 2>/dev/null || true
+    find "$d" -type d -exec chmod o+rw {} + 2>/dev/null || true
+    find "$d" -type f -exec chmod o+r {} + 2>/dev/null || true
+
+    # if this is the redis directory, also set ownership to uid 999 (redis user)
+    if [ "$d" = ".docker/database/redis" ]; then
+        chown -R 999:999 "$d" 2>/dev/null || true
+    fi
+
 done
 
-# make them writable by everyone; binder mount will inherit the mode
-chmod -R o+rw .docker
+# make top-level .docker tree readable
+chmod o+rx .docker 2>/dev/null || true
 
 echo "docker volume directories are prepared"

@@ -65,9 +65,16 @@ permission; the helper script below takes care of that automatically.
 docker compose -f docker-compose-redis.yml up --build -d
 ```
 
-The script creates the directories under `.docker` and adjusts the
-permissions so you don't have to run `chmod` by hand on each path.  If you
-prefer not to bind the volumes to your filesystem you can remove the
+The script creates the directories under `.docker`, adjusts permissions, and
+sets ownership of the Redis folder to match the container's `redis` user.
+This avoids common "Permission denied" errors and keeps the container
+running instead of looping on startup.
+
+The Redis service is also configured to run as your host user (UID 1000) and
+DKP\_SKIP_FIX_PERMS is set so the official entrypoint won't bail on the
+presence of a `data` subdirectory.
+
+If you prefer not to bind the volumes to your filesystem you can remove the
 `driver_opts` sections from the compose files and Docker will create normal
 named volumes instead.
 

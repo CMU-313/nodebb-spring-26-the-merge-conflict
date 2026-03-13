@@ -25,6 +25,9 @@ services:
   redis:
     image: redis:8.4.0-alpine
     restart: unless-stopped
+    user: "1000"
+    environment:
+      - SKIP_FIX_PERMS=1
     command: ['redis-server', '--appendonly', 'yes', '--loglevel', 'warning']
     # command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"] # uncomment if you want to use snapshotting instead of AOF
     volumes:
