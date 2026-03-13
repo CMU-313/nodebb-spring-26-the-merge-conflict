@@ -1,5 +1,5 @@
 {
-    "url": "http://localhost:4567",
+    "url": "http://17313-team07s3d.cmu.edu:4567/",
     "secret": "your-secret-key",
     "database": "redis",
     "redis:host": "redis",
