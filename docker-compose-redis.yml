@@ -16,7 +16,6 @@ services:
   redis:
     image: redis:8.4.0-alpine
     restart: unless-stopped
-    user: "1000"                        # run as host user to avoid UID mismatches
     environment:
       - SKIP_FIX_PERMS=1                # skip entrypoint permission warnings
     command: ['redis-server', '--appendonly', 'yes', '--loglevel', 'warning']
