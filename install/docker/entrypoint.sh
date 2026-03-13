@@ -6,7 +6,7 @@ set -e
 set_defaults() {
   export CONFIG_DIR="${CONFIG_DIR:-/opt/config}"
   export CONFIG="$CONFIG_DIR/config.json"
-  export NODEBB_INIT_VERB="${NODEBB_INIT_VERB:-install}"
+  export NODEBB_INIT_VERB="${NODEBB_INIT_VERB:-setup}"
   export NODEBB_BUILD_VERB="${NODEBB_BUILD_VERB:-build}"
   export START_BUILD="${START_BUILD:-${FORCE_BUILD_BEFORE_START:-false}}"
   export SETUP="${SETUP:-}"
