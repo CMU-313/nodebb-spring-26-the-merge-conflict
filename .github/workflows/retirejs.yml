@@ -11,8 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+
+    - name: Debug workspace
+      run: |
+        echo "GitHub Workspace: ${{ github.workspace }}"
+        echo "Current directory: $(pwd)"
+        echo "Contents:"
+        ls -la
+        echo "Looking for package.json:"
+        find . -name "package.json" -type f
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -21,8 +29,6 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-      working-directory: ${{ github.workspace }}
 
     - name: Run Retire.js Scan
       run: npx retire --severity high
-      working-directory: ${{ github.workspace }}
