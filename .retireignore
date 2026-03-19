@@ -1,0 +1,15 @@
+[
+    {
+        "path": "test/.*",
+        "justification": "Vulnerabilities in testing libraries do not affect the production build."
+    },
+    {
+        "path": "node_modules/.*",
+        "justification": "We will rely on npm audit for deep dependency trees; Retire.js will focus on our direct inclusions."
+    },
+    {
+        "component": "jquery",
+        "identifiers": { "issue": "2432" },
+        "justification": "We do not utilize the specific cross-site scripting function that triggers this CVE."
+    }
+]

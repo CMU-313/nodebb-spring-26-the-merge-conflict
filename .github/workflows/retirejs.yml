@@ -1,0 +1,34 @@
+name: Retire.js Vulnerability Scan
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Debug workspace
+      run: |
+        echo "GitHub Workspace: ${{ github.workspace }}"
+        echo "Current directory: $(pwd)"
+        echo "Contents:"
+        ls -la
+        echo "Looking for package.json:"
+        find . -name "package.json" -type f
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Retire.js Scan
+      run: npx retire --severity high
