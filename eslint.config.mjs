@@ -60,6 +60,14 @@ export default defineConfig([
 		}
 	},
 	...publicConfig,
-	...serverConfig
+	...serverConfig,
+	// ESM script (e.g. k6) – must come after so it overrides
+	{
+		files: ['script.js'],
+		languageOptions: {
+			sourceType: 'module',
+			ecmaVersion: 2022,
+		},
+	},
 ]);
 
