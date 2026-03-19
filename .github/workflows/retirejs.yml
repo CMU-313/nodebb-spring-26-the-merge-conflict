@@ -12,17 +12,17 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        path: '.'
+      uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
 
     - name: Install dependencies
       run: npm install
+      working-directory: ${{ github.workspace }}
 
     - name: Run Retire.js Scan
       run: npx retire --severity high
+      working-directory: ${{ github.workspace }}
