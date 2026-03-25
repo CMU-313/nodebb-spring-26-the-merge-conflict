@@ -18,6 +18,10 @@ PostObject:
         For posts received via ActivityPub, it is the url of the original piece of content.
     content:
       type: string
+    isEnglish:
+      type: boolean
+    translatedContent:
+      type: string
     sourceContent:
       type: string
       nullable: true
@@ -184,6 +188,10 @@ PostDataObject:
           description: A category identifier (present when post is loaded in topic context)
           nullable: true
         content:
+          type: string
+        isEnglish:
+          type: boolean
+        translatedContent:
           type: string
         timestamp:
           type: number
