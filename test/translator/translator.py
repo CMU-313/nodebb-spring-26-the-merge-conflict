@@ -15,7 +15,7 @@ PROMPT_TEMPLATE = (
 def query_llm_robust(content: str) -> tuple:
     try:
         response = client.chat(
-            model='llama3',
+            model='llama3', # change to model you want to tests
             messages=[{
                 'role': 'user',
                 'content': PROMPT_TEMPLATE.format(content=content),
