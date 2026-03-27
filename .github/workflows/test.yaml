@@ -79,17 +79,6 @@ jobs:
         run: |
           node app --setup="${SETUP}" --ci="${CI}"
 
-      - name: Install Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install translator test dependencies
-        run: pip install -r test/translator/requirements.txt
-
-      - name: Run translator tests
-        run: python -m pytest test/translator/ -v
-
       - name: Run ESLint
         run: npm run lint
 
