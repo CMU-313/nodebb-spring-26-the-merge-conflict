@@ -9,6 +9,24 @@ const { paths, pluginNamePattern } = require('../constants');
 
 const pkgInstall = module.exports;
 
+function isPlainObject(value) {
+	return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function deepMerge(target, source) {
+	// Simple deep merge for plain objects; arrays/primitives are replaced.
+	for (const [key, value] of Object.entries(source)) {
+		if (isPlainObject(value) && isPlainObject(target[key])) {
+			deepMerge(target[key], value);
+		} else if (Array.isArray(value)) {
+			target[key] = value.slice();
+		} else {
+			target[key] = value;
+		}
+	}
+	return target;
+}
+
 function sortDependencies(dependencies) {
 	return Object.entries(dependencies)
 		.sort((a, b) => (a < b ? -1 : 1))
@@ -33,7 +51,6 @@ pkgInstall.updatePackageFile = () => {
 		}
 	}
 
-	const _ = require('lodash');
 	const defaultPackageContents = JSON.parse(fs.readFileSync(paths.installPackage, 'utf8'));
 
 	let dependencies = {};
@@ -48,7 +65,8 @@ pkgInstall.updatePackageFile = () => {
 	// Sort dependencies alphabetically
 	dependencies = sortDependencies({ ...dependencies, ...defaultPackageContents.dependencies });
 
-	const packageContents = { ..._.merge(oldPackageContents, defaultPackageContents), dependencies, devDependencies };
+	const merged = deepMerge(oldPackageContents, defaultPackageContents);
+	const packageContents = { ...merged, dependencies, devDependencies };
 	fs.writeFileSync(paths.currentPackage, JSON.stringify(packageContents, null, 4));
 };
 

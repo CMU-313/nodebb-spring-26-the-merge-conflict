@@ -7,7 +7,8 @@ const semver = require('semver');
 const winston = require('winston');
 const chalk = require('chalk');
 
-const pkg = require('../../package.json');
+// NodeBB 실제 메타데이터는 install/package.json에 있음
+const pkg = require('../../install/package.json');
 const { paths, pluginNamePattern } = require('../constants');
 
 const Dependencies = module.exports;

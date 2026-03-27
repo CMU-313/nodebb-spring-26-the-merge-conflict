@@ -144,7 +144,8 @@ async function listEvents(count = 10) {
 
 async function info() {
 	console.log('');
-	const { version } = require('../../package.json');
+	// NodeBB 실제 메타데이터는 install/package.json에 있음
+	const { version } = require('../../install/package.json');
 	console.log(`  version:  ${version}`);
 
 	console.log(`  Node ver: ${process.version}`);

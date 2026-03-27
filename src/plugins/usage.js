@@ -6,7 +6,8 @@ const crypto = require('crypto');
 const cronJob = require('cron').CronJob;
 
 const request = require('../request');
-const pkg = require('../../package.json');
+// NodeBB 실제 메타데이터는 install/package.json에 있음
+const pkg = require('../../install/package.json');
 
 const meta = require('../meta');
 

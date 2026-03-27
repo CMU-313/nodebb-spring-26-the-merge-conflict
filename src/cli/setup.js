@@ -11,7 +11,8 @@ async function setup(initConfig) {
 	const install = require('../install');
 	const build = require('../meta/build');
 	const prestart = require('../prestart');
-	const pkg = require('../../package.json');
+	// NodeBB 실제 메타데이터는 install/package.json에 있음
+	const pkg = require('../../install/package.json');
 
 	winston.info('NodeBB Setup Triggered via Command Line');
 

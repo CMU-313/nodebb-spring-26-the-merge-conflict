@@ -9,7 +9,8 @@ const logrotate = require('logrotate-stream');
 const { mkdirp } = require('mkdirp');
 
 const file = require('./src/file');
-const pkg = require('./package.json');
+// NodeBB 실제 메타데이터는 install/package.json에 있음
+const pkg = require('./install/package.json');
 
 const pathToConfig = path.resolve(__dirname, process.env.CONFIG || 'config.json');
 
