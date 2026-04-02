@@ -1,0 +1,15 @@
+version: '3'
+services:
+  nodebb:
+    build: .
+    ports:
+      - "4567:4567"
+    environment:
+      - TRANSLATOR_API=http://translator:5000
+    depends_on:
+      - translator
+
+  translator:
+    build: ../llm-experiment-microservice-the-merge-conflict
+    ports:
+      - "5001:5000"

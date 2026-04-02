@@ -7,7 +7,8 @@ const nconf = require('nconf');
 const ipaddr = require('ipaddr.js');
 const { CookieJar } = require('tough-cookie');
 const fetchCookie = require('fetch-cookie').default;
-const { version } = require('../package.json');
+// NodeBB 실제 메타데이터는 install/package.json에 있음
+const { version } = require('../install/package.json');
 
 const plugins = require('./plugins');
 const ttl = require('./cache/ttl');
